@@ -16,7 +16,6 @@ import { SocialLinks } from "./SocialLinks";
 import { Button } from "./ui/button";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -100,15 +99,23 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
 
               <nav className="flex flex-col gap-2 px-6 py-6">
                 {navLinks.map((link) => (
-                  <SheetClose asChild key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="rounded-2xl border border-transparent px-4 py-3 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-accent"
-                      onClick={() => setOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  </SheetClose>
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="rounded-2xl border border-transparent px-4 py-3 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-accent"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setOpen(false);
+                      setTimeout(() => {
+                        const element = document.querySelector(link.href);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 300);
+                    }}
+                  >
+                    {link.label}
+                  </Link>
                 ))}
               </nav>
 
