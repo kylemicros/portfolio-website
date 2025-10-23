@@ -39,7 +39,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
               </div>
             </div>
             <p className="max-w-md text-pretty text-sm leading-relaxed text-muted-foreground">
-              Building dependable healthcare, fintech, and platform experiences with teams that value thoughtful engineering and sustainable delivery.
+              Building dependable healthcare, fintech, and platform experiences with teams that value thoughtful engineering and sustainable delivery. Inspired and motivated by my ever loving wife.
             </p>
             <SocialLinks
               links={socialLinks}
