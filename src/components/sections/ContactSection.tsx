@@ -44,7 +44,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
             <div className="grid gap-4 sm:grid-cols-2">
               <InfoChip icon="map-pin" label="Based in" value={contact.location} />
               {contact.availability && (
-                <InfoChip icon="sparkles" label="Availability" value={contact.availability} />
+                <InfoChip label="Availability" value={contact.availability} />
               )}
             </div>
 
@@ -78,7 +78,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
 type IconName = keyof typeof dynamicIconImports;
 
 interface InfoChipProps {
-  icon: IconName;
+  icon?: IconName;
   label: string;
   value: string;
 }
@@ -87,7 +87,7 @@ function InfoChip({ icon, label, value }: Readonly<InfoChipProps>) {
   return (
     <div className="flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-background/60 p-4 text-center">
       <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-        <DynamicIcon name={icon} className="size-4" />
+        {icon && <DynamicIcon name={icon} className="size-4" />}
         <span className="uppercase tracking-[0.3em] text-[0.65rem]">{label}</span>
       </div>
       <p className="text-sm font-medium text-foreground">{value}</p>
