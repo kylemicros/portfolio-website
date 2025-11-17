@@ -2,7 +2,7 @@ import type { NavbarLink } from "@/components/Navbar";
 import type { ProjectCardProps } from "@/components/ProjectCard";
 import type { SocialLink } from "@/components/SocialLinks";
 import { dynamicIconImports } from "lucide-react/dynamic";
-import MedicalImage from "@/assets/img/healthcare.jpg";
+import MultiTenantArchitectureImage from "@/assets/img/multi-tenant-architecture.png";
 import SoftwareImage from "@/assets/img/saas.jpg";
 import RewardsImage from "@/assets/img/rewards.jpg";
 
@@ -140,11 +140,11 @@ export const siteConfig: SiteConfig = {
   },
   projects: [
     {
-      src: MedicalImage,
-      title: "Multi-Tenant HMS",
+      src: MultiTenantArchitectureImage,
+      title: "Multi-Tenant",
       description:
-        "A multi-tenant healthcare management system designed to streamline patient data, appointment scheduling, and billing for diverse medical practices.",
-      technologies: ["Next.js", "React", "React Native", "Expo", "TypeScript", "ShadCN UI", "Prisma", "Neon", "Azure", "AWS"],
+        "A multi-tenant management system designed to streamline data, scheduling, and billing for diverse industries.",
+      technologies: ["Next.js", "NestJS", "C#", "ASP.NET Core", "Laravel", "React", "React Native", "Expo", "TypeScript", "ShadCN UI", "Prisma", "Neon", "Azure", "AWS"],
       category: "Cross-Platform",
       year: "2025",
     },
@@ -169,6 +169,9 @@ export const siteConfig: SiteConfig = {
     "Next.js",
     "React",
     "React Native",
+    "NestJS",
+    "C#",
+    "ASP.NET Core",
     "Expo",
     "Node.js",
     "Express",
@@ -190,11 +193,38 @@ export const siteConfig: SiteConfig = {
     "AWS",
     "GitHub Actions",
     "Playwright",
+    "Puppeteer",
     "Vitest",
     "CI/CD",
     "Figma",
   ],
   experiences: [
+    {
+      company: "BruntWork",
+      role: "Full Stack App Developer | Independent Contractor",
+      start: "October 2025",
+      end: "Present",
+      summary: "Lead developer for a multi-tenant mobile app and admin dashboard for a workforce management SaaS platform, also contributing to backend scripting efforts such as automation workflows, data extraction/scraping, and integration tooling.",
+      achievements: [
+        "Created multiple scripts using Puppeteer and Node.js to automate data extraction and integration tasks, reducing manual effort by 70% and improving data accuracy for client reporting",
+        "Built and designed a marketing and promotional web app for a fashion retail client.",
+        "Collaborated with cross-functional teams to gather requirements, design user interfaces, and implement features that enhanced user engagement and retention.",
+      ],
+      technologies: [
+        "Next.js",
+        "Tailwind CSS",
+        "ShadCN UI",
+        "TypeScript",
+        "React Native",
+        "Expo",
+        "NestJS",
+        "PostgreSQL",
+        "AWS",
+        "GitHub Actions",
+        "Laravel",
+        "Puppeteer"
+      ],
+    },
     {
       company: "NextStep Software Solutions, Inc.",
       role: "Full Stack Developer",
@@ -207,7 +237,7 @@ export const siteConfig: SiteConfig = {
         "Built Azure and AWS CI/CD pipelines integrated with automated testing (Vitest, Playwright), accelerating release cycles from weekly to daily deployments",
         "Mentored engineering teams on TypeScript best practices, accessibility-first UI design, and comprehensive documentation standards to elevate code quality across squads",
       ],
-      technologies: ["Next.js", "React", "React Native", "Expo", "Node.js", "Prisma", "Tailwind CSS", "Vitest", "Azure", "AWS", "Figma"],
+      technologies: ["Next.js", "TypeScript", "C#", "ASP.NET Core", "React", "React Native", "Expo", "Node.js", "Prisma", "Tailwind CSS", "Vitest", "Azure", "AWS", "Figma"],
       url: "#",
     },
     {
