@@ -209,6 +209,7 @@ export const siteConfig: SiteConfig = {
         "Created multiple scripts using Puppeteer and Node.js to automate data extraction and integration tasks, reducing manual effort by 70% and improving data accuracy for client reporting",
         "Built and designed a marketing and promotional web app for a fashion retail client.",
         "Collaborated with cross-functional teams to gather requirements, design user interfaces, and implement features that enhanced user engagement and retention.",
+        "Developed multiple webscraping tools to gather email leads and contact information for marketing campaigns, increasing lead generation by 40%",
       ],
       technologies: [
         "Next.js",
@@ -222,14 +223,14 @@ export const siteConfig: SiteConfig = {
         "AWS",
         "GitHub Actions",
         "Laravel",
-        "Puppeteer"
+        "Puppeteer",
       ],
     },
     {
       company: "NextStep Software Solutions, Inc.",
       role: "Full Stack Developer",
       start: "June 2025",
-      end: "Present",
+      end: "December 2025",
       summary:
         "Leading the rebuild of a multi-tenant cross-platform healthcare management suite that powers clinics, partner hospitals, and patient-facing channels.",
       achievements: [
