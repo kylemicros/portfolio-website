@@ -200,7 +200,16 @@ export const siteConfig: SiteConfig = {
   ],
   experiences: [
     {
-      company: "BruntWork",
+      company: "TalentTrooper - Rubato Life",
+      role: "Full Stack Developer | Independent Contractor",
+      start: "December 2025",
+      end: "Present",
+      summary: "",
+      achievements: [],
+      technologies: ["NestJS", "TypeScript", "Docker", "Docker Compose", "PostgreSQL"],
+    },
+    {
+      company: "BruntWork - Recruiting 360 Ltd.",
       role: "Full Stack App Developer | Independent Contractor",
       start: "October 2025",
       end: "Present",
