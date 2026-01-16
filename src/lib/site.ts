@@ -4,7 +4,8 @@ import type { SocialLink } from "@/components/SocialLinks";
 import { dynamicIconImports } from "lucide-react/dynamic";
 import MultiTenantArchitectureImage from "@/assets/img/multi-tenant-architecture.png";
 import SoftwareImage from "@/assets/img/saas.jpg";
-import RewardsImage from "@/assets/img/rewards.jpg";
+import SevenElevenImage from "@/assets/img/7-eleven-logo.png";
+import TheLawSocietyImage from "@/assets/img/the-law-society-logo.webp"
 
 export interface HeroAction {
   label: string;
@@ -140,6 +141,23 @@ export const siteConfig: SiteConfig = {
   },
   projects: [
     {
+      src: TheLawSocietyImage,
+      title: "Solicitor Web Scraper",
+      description: "A web scraping tool designed to extract and compile solicitor information from The Law Society's online directory for lead generation purposes.",
+      technologies: ["TypeScript", "Puppeteer", "Crawlee"],
+      category: "Web Scraping",
+      year: "2025",
+      githubLink: "https://github.com/kylemicros/solicitor-scraper-eu"
+    },
+    {
+      src: SevenElevenImage,
+      title: "7/11 Admin Web Apps",
+      description: "Administrative web applications developed for 7/11 to manage rewards systems and inventory across multiple locations.",
+      technologies: ["Spring Boot", "Quasar", "TypeScript", "ShadCN UI", "Java", "Docker", "Kubernetes", "Rancher"],
+      category: "Microservice",
+      year: "2025",
+    },
+    {
       src: MultiTenantArchitectureImage,
       title: "Multi-Tenant",
       description:
@@ -154,14 +172,6 @@ export const siteConfig: SiteConfig = {
       description: "A customer relations management platform tailored for call centers, enhancing client interactions and operational efficiency.",
       technologies: ["Bubble.io", "Xano", "Postman", "Stripe", "PayPal"],
       category: "B2B SaaS",
-      year: "2025",
-    },
-    {
-      src: RewardsImage,
-      title: "7/11 Admin Web Apps",
-      description: "Administrative web applications developed for 7/11 to manage rewards systems and inventory across multiple locations.",
-      technologies: ["Spring Boot", "Quasar", "TypeScript", "ShadCN UI", "Java", "Docker", "Kubernetes", "Rancher"],
-      category: "Microservice",
       year: "2025",
     }
   ],
@@ -200,19 +210,19 @@ export const siteConfig: SiteConfig = {
   ],
   experiences: [
     {
-      company: "TalentTrooper - Rubato Life",
-      role: "Full Stack Developer | Independent Contractor",
+      company: "Rubato Life",
+      role: "Full Stack Developer",
       start: "December 2025",
       end: "Present",
       summary: "",
       achievements: [],
-      technologies: ["NestJS", "TypeScript", "Docker", "Docker Compose", "PostgreSQL"],
+      technologies: ["NestJS", "TypeScript", "Docker", "Docker Compose", "MySQL", "CircleCI", "Google Cloud Platform", "CLI Apps"],
     },
     {
-      company: "BruntWork - Recruiting 360 Ltd.",
-      role: "Full Stack App Developer | Independent Contractor",
+      company: "Recruiting 360 Ltd.",
+      role: "Full Stack App Developer",
       start: "October 2025",
-      end: "Present",
+      end: "January 2026",
       summary: "Lead developer for a multi-tenant mobile app and admin dashboard for a workforce management SaaS platform, also contributing to backend scripting efforts such as automation workflows, data extraction/scraping, and integration tooling.",
       achievements: [
         "Created multiple scripts using Puppeteer and Node.js to automate data extraction and integration tasks, reducing manual effort by 70% and improving data accuracy for client reporting",

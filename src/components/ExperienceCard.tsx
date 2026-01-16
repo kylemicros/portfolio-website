@@ -49,17 +49,21 @@ export function ExperienceCard({ experience, index, className }: Readonly<Experi
             {experience.summary}
           </p>
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-              Highlights
-            </p>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {experience.achievements.map((achievement) => (
-                <li key={achievement} className="relative pl-5">
-                  <span className="absolute left-0 top-2 size-1.5 rounded-full bg-primary/60" aria-hidden="true" />
-                  {achievement}
-                </li>
-              ))}
-            </ul>
+            {experience.achievements.length > 0 && (
+              <>
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+                  Highlights
+                </p>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {experience.achievements.map((achievement) => (
+                    <li key={achievement} className="relative pl-5">
+                      <span className="absolute left-0 top-2 size-1.5 rounded-full bg-primary/60" aria-hidden="true" />
+                      {achievement}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {experience.technologies.map((tech) => (
