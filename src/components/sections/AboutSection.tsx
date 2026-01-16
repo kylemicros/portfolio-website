@@ -44,11 +44,11 @@ export function AboutSection({ about, skills }: Readonly<AboutSectionProps>) {
           </div>
         </div>
 
-        <div className="flex flex-col gap-8 rounded-3xl border border-border/60 bg-card/60 p-8 shadow-sm backdrop-blur">
+        <div className="flex flex-col gap-8 rounded-4xl border border-border/60 bg-card/60 p-8 shadow-sm backdrop-blur">
           <div className="grid gap-4 sm:grid-cols-3">
             {about.values.map((value) => (
               <div key={value.label} className="rounded-2xl border border-border/50 bg-background/50 px-4 py-5 text-center">
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-muted-foreground text-balance">
+                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.25em] text-muted-foreground text-balance whitespace-normal wrap-break-word">
                   {value.label}
                 </p>
                 <p className="mt-2 text-sm font-medium leading-snug text-foreground text-pretty">
