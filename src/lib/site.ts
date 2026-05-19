@@ -162,7 +162,7 @@ export const siteConfig: SiteConfig = {
       description: "A static spa & salon web app for a UK-based salon.",
       technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Prisma", "PostgreSQL", "Vercel"],
       category: "Web App",
-      year: "2022",
+      year: "2025",
       liveDemoLink: "https://www.glowedit.co.uk/"
     },
     {
