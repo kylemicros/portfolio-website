@@ -2,7 +2,7 @@ import type { NavbarLink } from "@/components/Navbar";
 import type { ProjectCardProps } from "@/components/ProjectCard";
 import type { SocialLink } from "@/components/SocialLinks";
 import { dynamicIconImports } from "lucide-react/dynamic";
-import { MultiTenantArchitectureImage, SevenElevenImage, TheLawSocietyImage, GlowEditImage, ClinicEzImage, ConexusImage, MeImage } from "@/assets/img";
+import { SevenElevenImage, TheLawSocietyImage, GlowEditImage, ClinicEzImage, ConexusImage, MeImage } from "@/assets/img";
 import { StaticImageData } from "next/image";
 
 export interface HeroAction {
