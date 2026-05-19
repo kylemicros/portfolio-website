@@ -174,15 +174,6 @@ export const siteConfig: SiteConfig = {
       year: "2025",
     },
     {
-      src: MultiTenantArchitectureImage,
-      title: "Multi-Tenant",
-      description:
-        "A multi-tenant management system designed to streamline data, scheduling, and billing for diverse industries.",
-      technologies: ["Next.js", "NestJS", "C#", "ASP.NET Core", "Laravel", "React", "React Native", "Expo", "TypeScript", "ShadCN UI", "Prisma", "Neon", "Azure", "AWS"],
-      category: "Cross-Platform",
-      year: "2025",
-    },
-    {
       src: ConexusImage,
       title: "Conexus CRM",
       description: "A customer relations management platform tailored for call centers, enhancing client interactions and operational efficiency.",
