@@ -2,10 +2,8 @@ import type { NavbarLink } from "@/components/Navbar";
 import type { ProjectCardProps } from "@/components/ProjectCard";
 import type { SocialLink } from "@/components/SocialLinks";
 import { dynamicIconImports } from "lucide-react/dynamic";
-import MultiTenantArchitectureImage from "@/assets/img/multi-tenant-architecture.png";
-import SoftwareImage from "@/assets/img/saas.jpg";
-import SevenElevenImage from "@/assets/img/7-eleven-logo.png";
-import TheLawSocietyImage from "@/assets/img/the-law-society-logo.webp"
+import { MultiTenantArchitectureImage, SevenElevenImage, TheLawSocietyImage, GlowEditImage, ClinicEzImage, ConexusImage, MeImage } from "@/assets/img";
+import { StaticImageData } from "next/image";
 
 export interface HeroAction {
   label: string;
@@ -24,7 +22,7 @@ export interface HeroContent {
   title: string;
   subtitle: string;
   description: string;
-  portrait: string;
+  portrait: string | StaticImageData;
   portraitAlt: string;
   actions: HeroAction[];
   highlights: HeroHighlight[];
@@ -98,7 +96,7 @@ export const siteConfig: SiteConfig = {
     subtitle: "I plan, design, and build web and mobile products that balance product vision with dependable engineering.",
     description:
       "From multi-tenant suites to startup MVPs, I work with founders and cross-functional teams to shape resilient architectures, streamline delivery, and ship features users trust.",
-    portrait: "/assets/img/me.jpg",
+    portrait: MeImage,
     portraitAlt: "Portrait of Kyle Marlowe Moreno",
     actions: [
       {
@@ -141,13 +139,31 @@ export const siteConfig: SiteConfig = {
   },
   projects: [
     {
+      src: ClinicEzImage,
+      title: "ClinicEZ",
+      description: "A cross-platform, multi-tenant healthcare information management system (HIMS) for instituional clinics, serving over 10,000 users.",
+      technologies: ["Next.js", "TypeScript", "Prisma", "Neon", "Vercel"],
+      category: "Cross-Platform",
+      year: "2025",
+      liveDemoLink: "https://tryconexus.com/",
+    },
+    {
       src: TheLawSocietyImage,
       title: "Solicitor Web Scraper",
-      description: "A web scraping tool designed to extract and compile solicitor information from The Law Society's online directory for lead generation purposes.",
+      description: "A 'The Law Society' web scraping tool that can extract 10,000 emails in a span of 2 hours, capable of bypassing CAPTCHAs.",
       technologies: ["TypeScript", "Puppeteer", "Crawlee"],
       category: "Web Scraping",
       year: "2025",
-      githubLink: "https://github.com/kylemicros/solicitor-scraper-eu"
+      githubLink: "https://github.com/kylemicros/solicitor-scraper-eu",
+    },
+    {
+      src: GlowEditImage,
+      title: "GlowEdit",
+      description: "A static spa & salon web app for a UK-based salon.",
+      technologies: ["Next.js", "TypeScript", "Tailwind CSS", "Prisma", "PostgreSQL", "Vercel"],
+      category: "Web App",
+      year: "2022",
+      liveDemoLink: "https://www.glowedit.co.uk/"
     },
     {
       src: SevenElevenImage,
@@ -167,12 +183,13 @@ export const siteConfig: SiteConfig = {
       year: "2025",
     },
     {
-      src: SoftwareImage,
+      src: ConexusImage,
       title: "Conexus CRM",
       description: "A customer relations management platform tailored for call centers, enhancing client interactions and operational efficiency.",
       technologies: ["Bubble.io", "Xano", "Postman", "Stripe", "PayPal"],
       category: "B2B SaaS",
       year: "2025",
+      liveDemoLink: "https://tryconexus.com/",
     }
   ],
   skills: [
