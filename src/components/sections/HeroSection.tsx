@@ -13,7 +13,7 @@ export function HeroSection() {
   return (
     <section
       id="home"
-      className="relative overflow-hidden bg-background"
+      className="relative overflow-hidden"
       aria-labelledby="hero-heading"
     >
       <div className="pointer-events-none absolute inset-0 -z-10">
@@ -28,7 +28,7 @@ export function HeroSection() {
           </Badge>
 
           <div className="space-y-6">
-            <h1 id="hero-heading" className="text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 id="hero-heading" className="text-balance text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               {hero.title}
             </h1>
             <p className="text-pretty text-lg text-muted-foreground sm:text-xl">

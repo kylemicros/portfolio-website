@@ -40,7 +40,7 @@ export function SocialLinks({
             key={index}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full border border-transparent p-2 text-muted-foreground transition-colors hover:border-border hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/40 focus-visible:ring-[3px]"
+            className="rounded-full border border-transparent p-2 text-muted-foreground transition-colors hover:border-border hover:text-foreground focus-visible:border-ring focus-visible:ring-ring focus-visible:ring-[3px]"
             aria-label={`Open ${link.icon}`}
           >
             <DynamicIcon name={link.icon} size={iconSize} />

@@ -7,7 +7,7 @@ import { siteConfig } from "@/lib/site";
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen flex-col bg-background">
+    <main className="relative flex min-h-screen flex-col">
       <HeroSection />
       <AboutSection about={siteConfig.about} skills={siteConfig.skills} />
       <ProjectsSection projects={siteConfig.projects} githubUrl={siteConfig.githubProfile} />
