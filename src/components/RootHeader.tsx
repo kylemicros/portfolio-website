@@ -24,6 +24,13 @@ import {
 
 type RootHeaderProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>;
 
+/** The element a link points to when it is a section of the page being shown, or null. */
+function sectionOnThisPage(href: string): HTMLElement | null {
+  const url = new URL(href, window.location.href);
+  if (url.pathname !== window.location.pathname || url.hash.length < 2) return null;
+  return document.getElementById(decodeURIComponent(url.hash.slice(1)));
+}
+
 export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
   const { navLinks, socialLinks, contact, name, role } = siteConfig;
   const [open, setOpen] = useState(false);
@@ -32,7 +39,7 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
     <HeaderInk {...props} className={cn("sticky top-0 z-50 w-full", className)}>
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
         <Link
-          href="#home"
+          href="/#home"
           className="group flex items-center gap-3 text-foreground transition-colors hover:text-blade-hot"
         >
           <Emblem size={32} animate />
@@ -84,13 +91,15 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
                     href={link.href}
                     className="rounded-2xl border border-transparent px-4 py-3 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-accent"
                     onClick={(e) => {
-                      e.preventDefault();
+                      // A section of this page: close the sheet, then scroll to it. Anywhere else
+                      // (such as the home page's sections from another page): close the sheet and
+                      // let the link navigate.
+                      const element = sectionOnThisPage(link.href);
                       setOpen(false);
+                      if (!element) return;
+                      e.preventDefault();
                       setTimeout(() => {
-                        const element = document.querySelector(link.href);
-                        if (element) {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }, 300);
                     }}
                   >
