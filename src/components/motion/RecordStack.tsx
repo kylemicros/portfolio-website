@@ -130,8 +130,10 @@ export function RecordStack({ children, className }: Readonly<RecordStackProps>)
   return (
     <div ref={rootRef} className={cn("group/stack", className)}>
       {children}
-      {/* Room for the last card to land and the full stack to hold before it scrolls away. */}
-      <div aria-hidden="true" className="hidden h-40 group-data-stack/stack:block" />
+      {/* Room for the last card to land and the full stack to hold before it scrolls away. It is
+          set by CSS under the same conditions as the stack, not by script, so it is already in
+          the page's HTML and nothing below it moves once script runs. */}
+      <div aria-hidden="true" className="hidden h-40 lg:motion-safe:block" />
     </div>
   );
 }

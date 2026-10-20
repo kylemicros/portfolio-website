@@ -1,92 +1,103 @@
-import Link from "next/link";
-import { DynamicIcon, dynamicIconImports } from "lucide-react/dynamic";
-
+import { CopyEmail } from "@/components/CopyEmail";
+import { BriefMotion } from "@/components/motion/BriefMotion";
 import { SectionHead } from "@/components/SectionHead";
+import { SlabLink } from "@/components/SlabLink";
 import type { ContactInfo } from "@/lib/site";
 import { siteConfig } from "@/lib/site";
+import { cn } from "@/lib/utils";
 
 import { SocialLinks } from "../SocialLinks";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 interface ContactSectionProps {
   contact: ContactInfo;
 }
 
+// The contact box's frame: four 1px edges, each growing from the start of its line when the
+// border draws on (see `BriefMotion`).
+const EDGES = [
+  { side: "top", className: "inset-x-0 top-0 h-px origin-left" },
+  { side: "left", className: "inset-y-0 left-0 w-px origin-top" },
+  { side: "right", className: "inset-y-0 right-0 w-px origin-top" },
+  { side: "bottom", className: "inset-x-0 bottom-0 h-px origin-left" },
+] as const;
+
 export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
+  const fields: [label: string, value: string][] = [];
+  if (contact.availability) fields.push(["Status", contact.availability]);
+  fields.push(["Base", contact.location]);
+
   return (
-    <section
-      id="contact"
-      className="relative border-t border-border/60 bg-linear-to-b from-transparent to-primary/5"
-      aria-labelledby="contact-heading"
-    >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 py-20">
+    <section id="contact" className="relative border-t border-border/60" aria-labelledby="contact-heading">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-20">
         <SectionHead
           number="04"
           label="Open a brief"
           headingId="contact-heading"
-          title="Let’s shape your next product milestone"
-          intro="I collaborate with teams who value strong design partnerships, clear communication, and a culture of experimentation. Tell me about your goals and we’ll explore how to reach them together."
+          title={contact.title}
+          intro={contact.intro}
         />
 
-        <Card className="mx-auto max-w-2xl border border-border/60 bg-card/75 text-center shadow-lg backdrop-blur">
-          <CardHeader className="gap-3">
-            <CardTitle className="text-2xl font-semibold">Ready when you are</CardTitle>
-            <CardDescription className="text-sm text-muted-foreground">
-              {contact.note}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <InfoChip icon="map-pin" label="Based in" value={contact.location} />
-              {contact.availability && (
-                <InfoChip label="Availability" value={contact.availability} />
-              )}
+        <BriefMotion className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
+          <div className="space-y-6">
+            {contact.note && (
+              <p data-brief-line="" className="text-pretty text-base leading-relaxed text-paper/90 sm:text-lg">
+                {contact.note}
+              </p>
+            )}
+            <dl className="text-sm">
+              {fields.map(([label, value]) => (
+                <div
+                  key={label}
+                  data-brief-line=""
+                  className="flex items-baseline justify-between gap-6 border-b border-dashed border-border py-2.5"
+                >
+                  <dt className="shrink-0 font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
+                    {label}
+                  </dt>
+                  <dd className="text-pretty text-right text-paper">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <div className="space-y-4">
+            <div className="relative px-5 pt-8 pb-6 sm:px-7">
+              {EDGES.map((edge) => (
+                <span
+                  key={edge.side}
+                  aria-hidden="true"
+                  data-brief-edge={edge.side}
+                  className={cn("pointer-events-none absolute bg-paper", edge.className)}
+                />
+              ))}
+              {/* Sits on the top edge, covering it. */}
+              <p className="absolute -top-2 left-4 bg-background px-2 font-mono text-[0.7rem] leading-4 uppercase tracking-[0.2em] text-paper">
+                Ready when you are
+              </p>
+
+              <CopyEmail email={contact.email} />
+
+              <div className="mt-7 flex flex-wrap gap-4">
+                {contact.calendarUrl && (
+                  <SlabLink href={contact.calendarUrl} target="_blank" rel="noopener noreferrer">
+                    Book a strategy call
+                  </SlabLink>
+                )}
+                <SlabLink href={`mailto:${contact.email}`} variant="outline">
+                  Send an email
+                </SlabLink>
+              </div>
+
+              {/* The icons load after the page, so the row's height is kept for them from the start. */}
+              <SocialLinks links={siteConfig.socialLinks} className="mt-6 min-h-10 justify-start gap-3" iconSize={22} />
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-              <Button asChild size="lg" className="gap-2">
-                <Link href={`mailto:${contact.email}`}>
-                  <DynamicIcon name="mail" className="size-4" />
-                  Email me
-                </Link>
-              </Button>
-              {contact.calendarUrl && (
-                <Button asChild variant="outline" size="lg" className="gap-2">
-                  <Link href={contact.calendarUrl} target="_blank" rel="noopener noreferrer">
-                    <DynamicIcon name="calendar" className="size-4" />
-                    Book a call
-                  </Link>
-                </Button>
-              )}
-            </div>
-
-            <div className="pt-4">
-              <SocialLinks links={siteConfig.socialLinks} className="justify-center gap-4" iconSize={24} />
-            </div>
-          </CardContent>
-        </Card>
+            {contact.signoff && (
+              <p className="text-pretty text-sm leading-relaxed text-muted-foreground">{contact.signoff}</p>
+            )}
+          </div>
+        </BriefMotion>
       </div>
     </section>
-  );
-}
-
-type IconName = keyof typeof dynamicIconImports;
-
-interface InfoChipProps {
-  icon?: IconName;
-  label: string;
-  value: string;
-}
-
-function InfoChip({ icon, label, value }: Readonly<InfoChipProps>) {
-  return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-background/60 p-4 text-center">
-      <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-        {icon && <DynamicIcon name={icon} className="size-4" />}
-        <span className="uppercase tracking-[0.3em] text-[0.65rem]">{label}</span>
-      </div>
-      <p className="text-sm font-medium text-foreground">{value}</p>
-    </div>
   );
 }

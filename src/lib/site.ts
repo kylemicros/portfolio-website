@@ -113,11 +113,24 @@ export interface SkillGroup {
 }
 
 export interface ContactInfo {
+  /** The Brief's title, set small at the end of its section head. */
+  title: string;
+  /** The paragraph under the Brief's section head. */
+  intro?: string;
+  /** The closing line under the contact box. */
+  signoff?: string;
   email: string;
   calendarUrl?: string;
   availability?: string;
   location: string;
   note?: string;
+}
+
+export interface SectionIntro {
+  /** The section title, set small at the end of its section head. */
+  title: string;
+  /** The paragraph under the section head. */
+  intro?: string;
 }
 
 export interface SiteConfig {
@@ -128,6 +141,8 @@ export interface SiteConfig {
   socialLinks: SocialLink[];
   hero: HeroContent;
   about: AboutContent;
+  /** The Cases section's head. */
+  projectsHead: SectionIntro;
   projects: ProjectCardProps[];
   skills: Skill[];
   skillGroups: SkillGroup[];
@@ -141,11 +156,12 @@ export const siteConfig: SiteConfig = {
   role: "Full Stack Developer",
   location: "Cagayan de Oro, PH",
   navLinks: [
-    { label: "Home", href: "#home" },
-    { label: "Profile", href: "#about" },
-    { label: "Cases", href: "#projects" },
-    { label: "Record", href: "#experience" },
-    { label: "Brief", href: "#contact" },
+    // The home page's sections, so the links work from any page.
+    { label: "Home", href: "/#home" },
+    { label: "Profile", href: "/#about" },
+    { label: "Cases", href: "/#projects" },
+    { label: "Record", href: "/#experience" },
+    { label: "Brief", href: "/#contact" },
   ],
   socialLinks: [
     { icon: "github", url: "https://github.com/kylemicros" },
@@ -200,6 +216,11 @@ export const siteConfig: SiteConfig = {
       { label: "Collaboration", value: "Open, async-friendly communication" },
       { label: "Mindset", value: "Continuous improvement & learning" },
     ],
+  },
+  projectsHead: {
+    title: "Work spanning healthcare, fintech, CRM, and platform launches",
+    intro:
+      "Worked on multiple projects with multiple companies ranging from startups to established enterprises, delivering impactful solutions that drive user engagement and business growth.",
   },
   projects: [
     {
@@ -357,6 +378,11 @@ export const siteConfig: SiteConfig = {
     }
   ],
   contact: {
+    title: "Let’s shape your next product milestone",
+    intro:
+      "I collaborate with teams who value strong design partnerships, clear communication, and a culture of experimentation. Tell me about your goals and we’ll explore how to reach them together.",
+    signoff:
+      "Building dependable healthcare, fintech, and platform experiences with teams that value thoughtful engineering and sustainable delivery. Inspired and motivated by my ever loving wife.",
     email: "kyle.marlowe.pacana.moreno@gmail.com",
     calendarUrl: "https://cal.com/kyle-marlowe-moreno-g4jnsr/30min",
     availability: "Booking new collaborations for Q4 2025",
