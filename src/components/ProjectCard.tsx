@@ -29,7 +29,14 @@ export interface ProjectCardProps {
   liveDemoLink?: string;
   category?: string;
   year?: string;
+  /**
+   * How the image fills its frame. `cover` (default): fills it, anchored to the top left, where a
+   * landing page's headline sits. `contain`: the whole image, centred on white, for logos.
+   */
+  imageFit?: ImageFit;
 }
+
+export type ImageFit = "cover" | "contain";
 
 interface CaseRowProps extends ProjectCardProps {
   /** The case's place in the index, from 0. */
@@ -77,8 +84,12 @@ export function ProjectCard({
   liveDemoLink,
   category,
   year,
+  imageFit = "cover",
   index,
 }: Readonly<CaseRowProps>) {
+  const contain = imageFit === "contain";
+  const fit = contain ? "object-contain" : "object-cover object-left-top";
+  const backdrop = contain ? "bg-white" : "bg-muted/60";
   const position = casePosition(index);
   const flipId = caseFlipId(index);
   const meta = [`Case ${position}`, category, year].filter(Boolean).join(" / ");
@@ -89,9 +100,9 @@ export function ProjectCard({
       <span
         data-file-media=""
         data-flip-id={flipId}
-        className="relative row-span-3 block h-12 w-18 overflow-hidden border border-border bg-muted/60 md:hidden"
+        className={cn("relative row-span-3 block h-12 w-18 overflow-hidden border border-border md:hidden", backdrop)}
       >
-        {src && <Image src={src} alt="" fill sizes="72px" className="object-cover" />}
+        {src && <Image src={src} alt="" fill sizes="72px" className={cn(fit, contain && "p-0.5")} />}
       </span>
 
       <span className={cn("font-mono text-[0.7rem] text-muted-foreground md:text-xs", LIT)}>
@@ -134,10 +145,19 @@ export function ProjectCard({
           <div className="relative h-full">
             <div
               data-flip-id={flipId}
-              className="relative aspect-16/10 w-full overflow-hidden bg-muted/60 md:aspect-auto md:h-full md:min-h-72"
+              className={cn(
+                "relative aspect-16/10 w-full overflow-hidden md:aspect-auto md:h-full md:min-h-72",
+                backdrop
+              )}
             >
               {src && (
-                <Image src={src} alt={title} fill sizes="(min-width: 768px) 30rem, 100vw" className="object-cover" />
+                <Image
+                  src={src}
+                  alt={title}
+                  fill
+                  sizes="(min-width: 768px) 30rem, 100vw"
+                  className={cn(fit, contain && "p-6")}
+                />
               )}
             </div>
             {liveDemoLink && <Stamp className="absolute bottom-5 left-5 -rotate-8">LIVE</Stamp>}

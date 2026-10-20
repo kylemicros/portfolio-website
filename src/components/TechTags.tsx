@@ -4,8 +4,13 @@ interface TechTagsProps {
   technologies: string[];
 }
 
-/** A list of technologies as small outlined tags, as shown on record cards and case files. */
+/**
+ * A list of technologies as small outlined tags, as shown on record cards and case files.
+ * Nothing at all when there are none, so no empty row is left behind.
+ */
 export function TechTags({ technologies }: Readonly<TechTagsProps>) {
+  if (technologies.length === 0) return null;
+
   return (
     <ul className="flex flex-wrap gap-1.5">
       {technologies.map((tech) => (

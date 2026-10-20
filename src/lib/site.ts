@@ -13,6 +13,7 @@ import {
   NextStepLogo,
   LogicallLogo,
   ApollotechLogo,
+  ApoloniaPosImage,
 } from "@/assets/img";
 import { StaticImageData } from "next/image";
 
@@ -102,6 +103,20 @@ const skills = [
   "Vitest",
   "CI/CD",
   "Figma",
+  "Angular",
+  "Flutter",
+  "Dart",
+  "Python",
+  "FastAPI",
+  "MySQL",
+  "Redis",
+  "Supabase",
+  "Firebase",
+  "Google Cloud Platform",
+  "CircleCI",
+  "Vercel",
+  "Codex",
+  "Claude Code",
 ] as const;
 
 export type Skill = (typeof skills)[number];
@@ -224,6 +239,15 @@ export const siteConfig: SiteConfig = {
   },
   projects: [
     {
+      src: ApoloniaPosImage,
+      title: "Apolonia POS",
+      description: "A point-of-sale and inventory management platform in one: ordering and checkout, ingredient stock, purchasing, expenses and daily reporting, run from a single app.",
+      technologies: ["Next.js", "Supabase", "Vercel"],
+      category: "POS + IMS",
+      year: "2026",
+      liveDemoLink: "https://apolonia-pos.vercel.app/",
+    },
+    {
       src: ClinicEzImage,
       title: "ClinicEZ",
       description: "A cross-platform, multi-tenant healthcare information management system (HIMS) for institutional clinics, serving over 10,000 users.",
@@ -235,10 +259,11 @@ export const siteConfig: SiteConfig = {
     {
       src: TheLawSocietyImage,
       title: "Solicitor Web Scraper",
-      description: "A 'The Law Society' web scraping tool that can extract 10,000 emails in a span of 2 hours, capable of bypassing CAPTCHAs.",
+      description: "A 'The Law Society' web scraping tool that can collect 1,000 emails in 15 minutes and is built to run reliably on rate-limited and protected sites.",
       technologies: ["TypeScript", "Puppeteer", "Crawlee"],
       category: "Web Scraping",
       year: "2025",
+      imageFit: "contain",
       githubLink: "https://github.com/kylemicros/solicitor-scraper-eu",
     },
     {
@@ -257,6 +282,7 @@ export const siteConfig: SiteConfig = {
       technologies: ["Spring Boot", "Quasar", "TypeScript", "ShadCN UI", "Java", "Docker", "Kubernetes", "Rancher"],
       category: "Microservice",
       year: "2025",
+      imageFit: "contain",
     },
     {
       src: ConexusImage,
@@ -272,15 +298,33 @@ export const siteConfig: SiteConfig = {
   skillGroups: [
     {
       label: "Frontend",
-      skills: ["Next.js", "React", "Vue", "Quasar", "TypeScript", "Tailwind CSS", "Radix UI", "ShadCN UI", "TanStack Router"],
+      skills: ["Next.js", "React", "Vue", "Quasar", "Angular", "TypeScript", "Tailwind CSS", "Radix UI", "ShadCN UI", "TanStack Router"],
     },
-    { label: "Mobile", skills: ["React Native", "Expo"] },
-    { label: "Backend", skills: ["NestJS", "ASP.NET Core", "C#", "Spring Boot", "Java", "Node.js", "Express"] },
-    { label: "Data", skills: ["PostgreSQL", "Prisma", "Neon"] },
-    { label: "Infra", skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "CI/CD"] },
-    { label: "Testing and tools", skills: ["Vitest", "Playwright", "Puppeteer", "Figma"] },
+    { label: "Mobile", skills: ["React Native", "Expo", "Flutter", "Dart"] },
+    {
+      label: "Backend",
+      skills: ["NestJS", "ASP.NET Core", "C#", "Spring Boot", "Java", "Node.js", "Express", "Python", "FastAPI"],
+    },
+    { label: "Data", skills: ["PostgreSQL", "MySQL", "Redis", "Prisma", "Neon", "Supabase", "Firebase"] },
+    {
+      label: "Infra",
+      skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "Google Cloud Platform", "CircleCI", "Vercel", "CI/CD"],
+    },
+    { label: "Testing and tools", skills: ["Vitest", "Playwright", "Puppeteer", "Figma", "Codex", "Claude Code"] },
   ],
   experiences: [
+    {
+      company: "Habile Group",
+      role: "Freelance Developer",
+      start: "May 2026",
+      end: "Present",
+      summary: "",
+      achievements: [
+        "Led the end-to-end migration of a legacy e-commerce website to a modern production platform, independently owning development and delivery for a business serving customers internationally.",
+        "Developed and delivered a production Real Estate Finance Management System (REFMS) used internally by Habile's finance department to centralize property, loan, and financial operations.",
+      ],
+      technologies: [],
+    },
     {
       company: "Rubato Life",
       logo: RubatoLifeLogo,
@@ -288,7 +332,12 @@ export const siteConfig: SiteConfig = {
       start: "December 2025",
       end: "Present",
       summary: "",
-      achievements: [],
+      achievements: [
+        "Lead development and ongoing engineering of a production cross-platform music therapy platform actively used by healthcare organizations across the United States, integrating AI-powered features, machine learning, real-time processing, and third-party services.",
+        "Assumed end-to-end engineering ownership of the production platform, taking responsibility for the codebase, infrastructure, technical delivery, troubleshooting, and ongoing development.",
+        "Design, implement, and maintain NestJS backend microservices integrating cloud services, authentication, data pipelines, and external healthcare and music platforms.",
+        "Led the successful migration of production infrastructure from Google Cloud Platform (GCP) to Microsoft Azure, covering infrastructure validation, service migration, replication planning, and production cutover, while reducing recurring cloud infrastructure costs.",
+      ],
       technologies: ["NestJS", "TypeScript", "Docker", "Docker Compose", "MySQL", "CircleCI", "Google Cloud Platform", "CLI Apps"],
     },
     {

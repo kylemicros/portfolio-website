@@ -14,7 +14,11 @@ interface ProjectsSectionProps {
 }
 
 export function ProjectsSection({ projects, githubUrl = siteConfig.githubProfile }: Readonly<ProjectsSectionProps>) {
-  const previews = projects.map((project, index) => ({ src: project.src, flipId: caseFlipId(index) }));
+  const previews = projects.map((project, index) => ({
+    src: project.src,
+    flipId: caseFlipId(index),
+    fit: project.imageFit,
+  }));
 
   return (
     <section id="projects" className="relative border-t border-border/60" aria-labelledby="projects-heading">

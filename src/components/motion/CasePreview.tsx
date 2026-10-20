@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 
 import Image, { type StaticImageData } from "next/image";
 
+import type { ImageFit } from "@/components/ProjectCard";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,8 @@ export interface CasePreviewItem {
   src?: string | StaticImageData;
   /** The case's `data-flip-id`, so its file can grow out of the preview. */
   flipId: string;
+  /** As the case's own image: `contain` shows a logo whole, centred on white. */
+  fit?: ImageFit;
 }
 
 interface CasePreviewProps {
@@ -157,9 +160,18 @@ export function CasePreview({ items, children, className }: Readonly<CasePreview
               <div
                 key={item.flipId}
                 data-preview-picture={index}
-                className="absolute inset-0 overflow-hidden opacity-0 transition-opacity duration-150"
+                className={cn(
+                  "absolute inset-0 overflow-hidden opacity-0 transition-opacity duration-150",
+                  item.fit === "contain" && "bg-white"
+                )}
               >
-                <Image src={item.src} alt="" fill sizes="300px" className="object-cover" />
+                <Image
+                  src={item.src}
+                  alt=""
+                  fill
+                  sizes="300px"
+                  className={item.fit === "contain" ? "object-contain p-3" : "object-cover object-left-top"}
+                />
               </div>
             ) : null
           )}

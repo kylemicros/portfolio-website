@@ -89,9 +89,11 @@ export function ExperienceCard({ experience, index, className }: Readonly<Experi
           <p className="font-mono text-xs text-muted-foreground">{dates}</p>
         </div>
 
-        <div className="col-span-full lg:col-span-1">
-          <TechTags technologies={experience.technologies} />
-        </div>
+        {experience.technologies.length > 0 && (
+          <div className="col-span-full lg:col-span-1">
+            <TechTags technologies={experience.technologies} />
+          </div>
+        )}
 
         {hasFile && (
           <FileDialog
