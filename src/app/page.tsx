@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <main className="relative flex min-h-screen flex-col">
       <HeroSection />
-      <AboutSection about={siteConfig.about} skills={siteConfig.skills} />
+      <AboutSection about={siteConfig.about} skillGroups={siteConfig.skillGroups} />
       <ProjectsSection projects={siteConfig.projects} githubUrl={siteConfig.githubProfile} />
       <ExperienceSection experiences={siteConfig.experiences} />
       <ContactSection contact={siteConfig.contact} />

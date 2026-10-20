@@ -1,12 +1,32 @@
 "use client";
 
 import gsap from "gsap";
+import type { Flip as FlipPlugin } from "gsap/Flip";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 
 // Register plugins once, here.
 gsap.registerPlugin(useGSAP, SplitText, ScrollTrigger);
+
+// Flip and ScrambleText are not needed for the first paint, so they load in their own chunks when a
+// component first asks for them, and are registered here once.
+let flip: Promise<typeof FlipPlugin> | undefined;
+export function loadFlip(): Promise<typeof FlipPlugin> {
+  flip ??= import("gsap/Flip").then(({ Flip }) => {
+    gsap.registerPlugin(Flip);
+    return Flip;
+  });
+  return flip;
+}
+
+let scrambleText: Promise<void> | undefined;
+export function loadScrambleText(): Promise<void> {
+  scrambleText ??= import("gsap/ScrambleTextPlugin").then(({ ScrambleTextPlugin }) => {
+    gsap.registerPlugin(ScrambleTextPlugin);
+  });
+  return scrambleText;
+}
 
 // Media queries for gsap.matchMedia(): motion only runs when the visitor has not asked for less.
 export const MOTION_OK = "(prefers-reduced-motion: no-preference)";
