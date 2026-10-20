@@ -75,6 +75,9 @@ const GAP = 10;
  * The parent drives it through `slashRef`; geometry follows the parent's size.
  */
 export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }: Readonly<SlashProps>) {
+  // Plain numbers, so callers may pass inline object literals without re-running the layout.
+  const { x: fromX, y: fromY } = from;
+  const { x: toX, y: toY } = to;
   const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const ids = {
     mask: `slash-mask-${id}`,
@@ -116,7 +119,10 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
     wrapper.style.display = "block";
     svg.setAttribute("viewBox", `${-bleed} 0 ${width + bleed} ${height}`);
 
-    const g = computeSlash({ width, height }, { from, to, bow, scaleWidth: window.innerWidth });
+    const g = computeSlash(
+      { width, height },
+      { from: { x: fromX, y: fromY }, to: { x: toX, y: toY }, bow, scaleWidth: window.innerWidth }
+    );
     const k = g.scale;
     const [trail2, trail1, glow, edge, core, scar] = paths;
     trail2?.setAttribute("d", crescentPath(g, TRAIL_2.width * k, TRAIL_2.shift * k));
@@ -141,7 +147,7 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
     flash.style.background = `radial-gradient(circle at ${hit.x + bleed}px ${hit.y}px, rgb(255 255 255) 0, rgb(255 255 255 / 0) ${Math.round(Math.min(width, height) * 0.6)}px)`;
 
     return { g, bleed, length };
-  }, [from, to, bow, bleedLeft]);
+  }, [fromX, fromY, toX, toY, bow, bleedLeft]);
 
   // Recompute on resize (debounced), so a scar left on the page follows the new size.
   useEffect(() => {
@@ -280,6 +286,10 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
                 if (copy instanceof HTMLElement) {
                   copy.removeAttribute("id");
                   copy.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+                  // `inert` already keeps the copy out of the tab order; this covers browsers without it.
+                  copy
+                    .querySelectorAll("a[href], button, input, select, textarea, [tabindex]")
+                    .forEach((el) => el.setAttribute("tabindex", "-1"));
                   copy.style.margin = "0";
                   shell.replaceChildren(copy);
                 }
