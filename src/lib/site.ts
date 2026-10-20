@@ -2,7 +2,19 @@ import type { NavbarLink } from "@/components/Navbar";
 import type { ProjectCardProps } from "@/components/ProjectCard";
 import type { SocialLink } from "@/components/SocialLinks";
 import { dynamicIconImports } from "lucide-react/dynamic";
-import { SevenElevenImage, TheLawSocietyImage, GlowEditImage, ClinicEzImage, ConexusImage, MeImage } from "@/assets/img";
+import {
+  SevenElevenImage,
+  TheLawSocietyImage,
+  GlowEditImage,
+  ClinicEzImage,
+  ConexusImage,
+  MeImage,
+  RubatoLifeLogo,
+  NextStepLogo,
+  LogicallLogo,
+  ApollotechLogo,
+  ApoloniaPosImage,
+} from "@/assets/img";
 import { StaticImageData } from "next/image";
 
 export interface HeroAction {
@@ -20,10 +32,14 @@ export interface HeroHighlight {
 export interface HeroContent {
   eyebrow: string;
   title: string;
+  /** Part of `title` shown in red. A display hint only: it must appear in `title` word for word. */
+  titleEmphasis?: string;
   subtitle: string;
   description: string;
   portrait: string | StaticImageData;
   portraitAlt: string;
+  /** The short line under the fields of the hero's ID card. */
+  portraitCaption: string;
   actions: HeroAction[];
   highlights: HeroHighlight[];
 }
@@ -42,6 +58,8 @@ export interface AboutContent {
 
 export interface ExperienceItem {
   company: string;
+  /** The company's logo, shown on a white tile. Companies without one get a seal instead. */
+  logo?: StaticImageData;
   role: string;
   start: string;
   end: string;
@@ -51,12 +69,83 @@ export interface ExperienceItem {
   url?: string;
 }
 
+// The skills, in the order the owner listed them. The toolkit groups them, and its groups can
+// only name skills from this list.
+const skills = [
+  "Next.js",
+  "React",
+  "React Native",
+  "NestJS",
+  "C#",
+  "ASP.NET Core",
+  "Expo",
+  "Node.js",
+  "Express",
+  "Prisma",
+  "TypeScript",
+  "Java",
+  "Spring Boot",
+  "Quasar",
+  "Vue",
+  "Tailwind CSS",
+  "Radix UI",
+  "ShadCN UI",
+  "TanStack Router",
+  "PostgreSQL",
+  "Neon",
+  "Docker",
+  "Kubernetes",
+  "Azure",
+  "AWS",
+  "GitHub Actions",
+  "Playwright",
+  "Puppeteer",
+  "Vitest",
+  "CI/CD",
+  "Figma",
+  "Angular",
+  "Flutter",
+  "Dart",
+  "Python",
+  "FastAPI",
+  "MySQL",
+  "Redis",
+  "Supabase",
+  "Firebase",
+  "Google Cloud Platform",
+  "CircleCI",
+  "Vercel",
+  "Codex",
+  "Claude Code",
+] as const;
+
+export type Skill = (typeof skills)[number];
+
+export interface SkillGroup {
+  label: string;
+  /** Every skill appears in exactly one group. */
+  skills: Skill[];
+}
+
 export interface ContactInfo {
+  /** The Brief's title, set small at the end of its section head. */
+  title: string;
+  /** The paragraph under the Brief's section head. */
+  intro?: string;
+  /** The closing line under the contact box. */
+  signoff?: string;
   email: string;
   calendarUrl?: string;
   availability?: string;
   location: string;
   note?: string;
+}
+
+export interface SectionIntro {
+  /** The section title, set small at the end of its section head. */
+  title: string;
+  /** The paragraph under the section head. */
+  intro?: string;
 }
 
 export interface SiteConfig {
@@ -67,8 +156,11 @@ export interface SiteConfig {
   socialLinks: SocialLink[];
   hero: HeroContent;
   about: AboutContent;
+  /** The Cases section's head. */
+  projectsHead: SectionIntro;
   projects: ProjectCardProps[];
-  skills: string[];
+  skills: Skill[];
+  skillGroups: SkillGroup[];
   experiences: ExperienceItem[];
   contact: ContactInfo;
   githubProfile?: string;
@@ -79,11 +171,12 @@ export const siteConfig: SiteConfig = {
   role: "Full Stack Developer",
   location: "Cagayan de Oro, PH",
   navLinks: [
-    { label: "Home", href: "#home" },
-    { label: "About", href: "#about" },
-    { label: "Projects", href: "#projects" },
-    { label: "Experience", href: "#experience" },
-    { label: "Contact", href: "#contact" },
+    // The home page's sections, so the links work from any page.
+    { label: "Home", href: "/#home" },
+    { label: "Profile", href: "/#about" },
+    { label: "Cases", href: "/#projects" },
+    { label: "Record", href: "/#experience" },
+    { label: "Brief", href: "/#contact" },
   ],
   socialLinks: [
     { icon: "github", url: "https://github.com/kylemicros" },
@@ -93,11 +186,13 @@ export const siteConfig: SiteConfig = {
   hero: {
     eyebrow: "Full Stack Developer",
     title: "Shipping reliable platforms for teams that move fast",
+    titleEmphasis: "move fast",
     subtitle: "I plan, design, and build web and mobile products that balance product vision with dependable engineering.",
     description:
-      "From multi-tenant suites to startup MVPs, I work with founders and cross-functional teams to shape resilient architectures, streamline delivery, and ship features users trust.",
+      "From multi-tenant suites to startup MVPs, I work with founders and cross-functional teams to design architectures that hold up, speed up delivery, and ship features users trust.",
     portrait: MeImage,
     portraitAlt: "Portrait of Kyle Marlowe Moreno",
+    portraitCaption: "Focused on dependable healthcare, fintech, and platform experiences.",
     actions: [
       {
         label: "View selected work",
@@ -118,12 +213,12 @@ export const siteConfig: SiteConfig = {
   about: {
     title: "Pairing product empathy with dependable engineering",
     description:
-      "I stay close to the business context—mapping operations, refining developer workflows, and delivering software that scales responsibly. My focus is on building maintainable systems without slowing teams down.",
+      "I stay close to the business context, mapping operations, refining developer workflows, and delivering software that scales responsibly. My focus is on building maintainable systems without slowing teams down.",
     highlights: [
       {
         title: "Multi-tenant platform leadership",
         description:
-          "Guiding the rebuild of a healthcare management suite at NextStep, covering architecture decisions, shared component libraries, and automated QA across web and mobile.",
+          "Guiding the rebuild of a healthcare management suite, covering architecture decisions, shared component libraries, and automated QA across web and mobile.",
       },
       {
         title: "Delivery enablement",
@@ -137,7 +232,21 @@ export const siteConfig: SiteConfig = {
       { label: "Mindset", value: "Continuous improvement & learning" },
     ],
   },
+  projectsHead: {
+    title: "Work spanning healthcare, fintech, CRM, and platform launches",
+    intro:
+      "Worked on multiple projects with multiple companies ranging from startups to established enterprises, delivering impactful solutions that drive user engagement and business growth.",
+  },
   projects: [
+    {
+      src: ApoloniaPosImage,
+      title: "Apolonia POS",
+      description: "A point-of-sale and inventory management platform in one: ordering and checkout, ingredient stock, purchasing, expenses and daily reporting, run from a single app.",
+      technologies: ["Next.js", "Supabase", "Vercel"],
+      category: "POS + IMS",
+      year: "2026",
+      liveDemoLink: "https://apolonia-pos.vercel.app/",
+    },
     {
       src: ClinicEzImage,
       title: "ClinicEZ",
@@ -150,10 +259,11 @@ export const siteConfig: SiteConfig = {
     {
       src: TheLawSocietyImage,
       title: "Solicitor Web Scraper",
-      description: "A 'The Law Society' web scraping tool that can extract 10,000 emails in a span of 2 hours, capable of bypassing CAPTCHAs.",
+      description: "A 'The Law Society' web scraping tool that can collect 1,000 emails in 15 minutes and is built to run reliably on rate-limited and protected sites.",
       technologies: ["TypeScript", "Puppeteer", "Crawlee"],
       category: "Web Scraping",
       year: "2025",
+      imageFit: "contain",
       githubLink: "https://github.com/kylemicros/solicitor-scraper-eu",
     },
     {
@@ -172,6 +282,7 @@ export const siteConfig: SiteConfig = {
       technologies: ["Spring Boot", "Quasar", "TypeScript", "ShadCN UI", "Java", "Docker", "Kubernetes", "Rancher"],
       category: "Microservice",
       year: "2025",
+      imageFit: "contain",
     },
     {
       src: ConexusImage,
@@ -183,47 +294,50 @@ export const siteConfig: SiteConfig = {
       liveDemoLink: "https://tryconexus.com/",
     }
   ],
-  skills: [
-    "Next.js",
-    "React",
-    "React Native",
-    "NestJS",
-    "C#",
-    "ASP.NET Core",
-    "Expo",
-    "Node.js",
-    "Express",
-    "Prisma",
-    "TypeScript",
-    "Java",
-    "Spring Boot",
-    "Quasar",
-    "Vue",
-    "Tailwind CSS",
-    "Radix UI",
-    "ShadCN UI",
-    "TanStack Router",
-    "PostgreSQL",
-    "Neon",
-    "Docker",
-    "Kubernetes",
-    "Azure",
-    "AWS",
-    "GitHub Actions",
-    "Playwright",
-    "Puppeteer",
-    "Vitest",
-    "CI/CD",
-    "Figma",
+  skills: [...skills],
+  skillGroups: [
+    {
+      label: "Frontend",
+      skills: ["Next.js", "React", "Vue", "Quasar", "Angular", "TypeScript", "Tailwind CSS", "Radix UI", "ShadCN UI", "TanStack Router"],
+    },
+    { label: "Mobile", skills: ["React Native", "Expo", "Flutter", "Dart"] },
+    {
+      label: "Backend",
+      skills: ["NestJS", "ASP.NET Core", "C#", "Spring Boot", "Java", "Node.js", "Express", "Python", "FastAPI"],
+    },
+    { label: "Data", skills: ["PostgreSQL", "MySQL", "Redis", "Prisma", "Neon", "Supabase", "Firebase"] },
+    {
+      label: "Infra",
+      skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "Google Cloud Platform", "CircleCI", "Vercel", "CI/CD"],
+    },
+    { label: "Testing and tools", skills: ["Vitest", "Playwright", "Puppeteer", "Figma", "Codex", "Claude Code"] },
   ],
   experiences: [
     {
+      company: "Habile Group",
+      role: "Freelance Developer",
+      start: "May 2026",
+      end: "Present",
+      summary: "",
+      achievements: [
+        "Led the end-to-end migration of a legacy e-commerce website to a modern production platform, independently owning development and delivery for a business serving customers internationally.",
+        "Developed and delivered a production Real Estate Finance Management System (REFMS) used internally by Habile's finance department to centralize property, loan, and financial operations.",
+      ],
+      technologies: [],
+    },
+    {
       company: "Rubato Life",
+      logo: RubatoLifeLogo,
       role: "Full Stack Developer",
       start: "December 2025",
       end: "Present",
       summary: "",
-      achievements: [],
+      achievements: [
+        "Lead development and ongoing engineering of a production cross-platform music therapy platform actively used by healthcare organizations across the United States, integrating AI-powered features, machine learning, real-time processing, and third-party services.",
+        "Assumed end-to-end engineering ownership of the production platform, taking responsibility for the codebase, infrastructure, technical delivery, troubleshooting, and ongoing development.",
+        "Design, implement, and maintain NestJS backend microservices integrating cloud services, authentication, data pipelines, and external healthcare and music platforms.",
+        "Led the successful migration of production infrastructure from Google Cloud Platform (GCP) to Microsoft Azure, covering infrastructure validation, service migration, replication planning, and production cutover, while reducing recurring cloud infrastructure costs.",
+      ],
       technologies: ["NestJS", "TypeScript", "Docker", "Docker Compose", "MySQL", "CircleCI", "Google Cloud Platform", "CLI Apps"],
     },
     {
@@ -255,21 +369,23 @@ export const siteConfig: SiteConfig = {
     },
     {
       company: "NextStep Software Solutions, Inc.",
+      logo: NextStepLogo,
       role: "Full Stack Developer",
       start: "June 2025",
       end: "December 2025",
       summary:
         "Leading the rebuild of a multi-tenant cross-platform healthcare management suite that powers clinics, partner hospitals, and patient-facing channels.",
       achievements: [
-        "Architected domain-driven service boundaries with shared React/React Native component libraries, ensuring consistent UX across web and mobile platforms",
+        "Architected domain-driven service boundaries with shared React/React Native component libraries, so web and mobile share one consistent UX",
         "Built Azure and AWS CI/CD pipelines integrated with automated testing (Vitest, Playwright), accelerating release cycles from weekly to daily deployments",
-        "Mentored engineering teams on TypeScript best practices, accessibility-first UI design, and comprehensive documentation standards to elevate code quality across squads",
+        "Mentored engineering teams on TypeScript best practices, accessibility-first UI design, and comprehensive documentation standards that raised code quality across squads",
       ],
       technologies: ["Next.js", "TypeScript", "C#", "ASP.NET Core", "React", "React Native", "Expo", "Node.js", "Prisma", "Tailwind CSS", "Vitest", "Azure", "AWS", "Figma"],
       url: "#",
     },
     {
       company: "Logicall",
+      logo: LogicallLogo,
       role: "DevOps Engineer",
       start: "March 2025",
       end: "June 2025",
@@ -277,13 +393,14 @@ export const siteConfig: SiteConfig = {
         "Worked on a customer relations management SaaS platform for multiple call centers in the Philippines.",
       achievements: [
         "Analyzed and optimized Bubble.io and Xano workflows, refactoring critical business logic into monitored microservices to minimize downtime and improve reliability",
-        "Implemented environment-specific deployment scripts, real-time usage monitoring dashboards, and automated alerting systems to ensure transaction integrity and business continuity",
+        "Implemented environment-specific deployment scripts, real-time usage monitoring dashboards, and automated alerting systems that protect transaction integrity and keep the business running",
       ],
       technologies: ["Bubble.io", "Xano", "Postman", "Stripe", "PayPal", "AWS"],
       url: "https://northwind.vc",
     },
     {
       company: "Apollotech Software Corporation",
+      logo: ApollotechLogo,
       role: "Software Developer",
       start: "July 2024",
       end: "June 2025",
@@ -304,12 +421,17 @@ export const siteConfig: SiteConfig = {
         "Partner with founders and SMEs to ideate, prototype, and ship cross-platform products from discovery to hand-off.",
       achievements: [
         "Launched web and mobile apps for retail, hospitality, and nonprofit clients with reusable codebases their teams can maintain",
-        "Document product decisions, design systems, and runbooks so stakeholders stay empowered after launch",
+        "Document product decisions, design systems, and runbooks so stakeholders can run things on their own after launch",
       ],
       technologies: ["Next.js", "React", "React Native", "Expo", "Node.js", "Express", "Tailwind CSS", "AWS", "Azure", "PostgreSQL"],
     }
   ],
   contact: {
+    title: "Let’s shape your next product milestone",
+    intro:
+      "I collaborate with teams who value strong design partnerships, clear communication, and a culture of experimentation. Tell me about your goals and we’ll explore how to reach them together.",
+    signoff:
+      "Building dependable healthcare, fintech, and platform experiences with teams that value thoughtful engineering and sustainable delivery. Inspired and motivated by my ever loving wife.",
     email: "kyle.marlowe.pacana.moreno@gmail.com",
     calendarUrl: "https://cal.com/kyle-marlowe-moreno-g4jnsr/30min",
     availability: "Booking new collaborations for Q4 2025",

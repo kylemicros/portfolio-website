@@ -1,16 +1,16 @@
 "use client";
 
 import type { DetailedHTMLProps, HTMLAttributes } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import Image from "next/image";
 import Link from "next/link";
 import { MenuIcon } from "lucide-react";
 
-import Logo from "@/assets/img/marlowe-logo.png";
+import { HeaderInk } from "@/components/motion/HeaderInk";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
+import { Emblem } from "./Emblem";
 import { Navbar } from "./Navbar";
 import { SocialLinks } from "./SocialLinks";
 import { Button } from "./ui/button";
@@ -24,38 +24,25 @@ import {
 
 type RootHeaderProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElement>;
 
+/** The element a link points to when it is a section of the page being shown, or null. */
+function sectionOnThisPage(href: string): HTMLElement | null {
+  const url = new URL(href, window.location.href);
+  if (url.pathname !== window.location.pathname || url.hash.length < 2) return null;
+  return document.getElementById(decodeURIComponent(url.hash.slice(1)));
+}
+
 export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
   const { navLinks, socialLinks, contact, name, role } = siteConfig;
-  const [isScrolled, setIsScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 12);
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <header
-      {...props}
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled ? "bg-background/30 backdrop-blur-md shadow-md" : "bg-background/70 backdrop-blur-xl",
-        className
-      )}
-    >
+    <HeaderInk {...props} className={cn("sticky top-0 z-50 w-full", className)}>
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
         <Link
-          href="#home"
-          className="group flex items-center gap-3 text-foreground transition-colors hover:text-primary"
+          href="/#home"
+          className="group flex items-center gap-3 text-foreground transition-colors hover:text-blade-hot"
         >
-          <Image
-            src={Logo}
-            alt={name}
-            className="h-8 w-auto shrink-0"
-            priority
-          />
+          <Emblem size={32} animate />
           <div className="leading-tight">
             <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">
               Portfolio
@@ -64,9 +51,9 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
           </div>
         </Link>
 
-        <Navbar links={navLinks} className="hidden md:flex" />
+        <Navbar links={navLinks} className="hidden lg:flex" />
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <SocialLinks links={socialLinks.slice(0, 3)} className="gap-3" />
           {contact.calendarUrl && (
             <Button variant="outline" size="sm" asChild>
@@ -77,7 +64,7 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
           )}
         </div>
 
-        <div className="flex items-center md:hidden">
+        <div className="flex items-center lg:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
@@ -104,13 +91,15 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
                     href={link.href}
                     className="rounded-2xl border border-transparent px-4 py-3 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-accent"
                     onClick={(e) => {
-                      e.preventDefault();
+                      // A section of this page: close the sheet, then scroll to it. Anywhere else
+                      // (such as the home page's sections from another page): close the sheet and
+                      // let the link navigate.
+                      const element = sectionOnThisPage(link.href);
                       setOpen(false);
+                      if (!element) return;
+                      e.preventDefault();
                       setTimeout(() => {
-                        const element = document.querySelector(link.href);
-                        if (element) {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }, 300);
                     }}
                   >
@@ -150,6 +139,6 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
           </Sheet>
         </div>
       </div>
-    </header>
+    </HeaderInk>
   );
 }
