@@ -19,6 +19,7 @@ import { Button } from "./ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -85,6 +86,7 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
                 <SheetTitle className="text-left text-lg font-semibold text-foreground">
                   {name}
                 </SheetTitle>
+                <SheetDescription className="sr-only">Site sections and contact links</SheetDescription>
                 <p className="text-left text-sm text-muted-foreground">{role}</p>
               </SheetHeader>
 
