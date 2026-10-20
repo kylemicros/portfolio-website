@@ -6,7 +6,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { MenuIcon } from "lucide-react";
 
+import { CurrentQuarter } from "@/components/CurrentQuarter";
 import { HeaderInk } from "@/components/motion/HeaderInk";
+import { withQuarter } from "@/lib/quarter";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -37,7 +39,7 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
 
   return (
     <HeaderInk {...props} className={cn("sticky top-0 z-50 w-full", className)}>
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
+      <div className="site-width flex items-center justify-between gap-4 py-4">
         <Link
           href="/#home"
           className="group flex items-center gap-3 text-foreground transition-colors hover:text-blade-hot"
@@ -47,7 +49,9 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
             <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">
               Portfolio
             </p>
-            <p className="text-base font-semibold">{name}</p>
+            {/* One line at every width, so the header stays shorter than a section's top padding
+                and a jump to a section never hides its heading. */}
+            <p className="whitespace-nowrap text-sm font-semibold min-[360px]:text-base">{name}</p>
           </div>
         </Link>
 
@@ -131,9 +135,16 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
                     </Link>
                   </Button>
                 )}
-                <p className="text-sm text-muted-foreground">
-                  {contact.availability}
-                </p>
+                {contact.availability && (
+                  <p className="text-sm text-muted-foreground">
+                    {/* The sheet's content is only rendered in the browser, once it opens, so the
+                        server's text is never shown or hydrated here. */}
+                    <CurrentQuarter
+                      text={contact.availability}
+                      serverText={withQuarter(contact.availability, new Date())}
+                    />
+                  </p>
+                )}
               </div>
             </SheetContent>
           </Sheet>

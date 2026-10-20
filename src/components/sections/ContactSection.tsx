@@ -1,8 +1,12 @@
+import type { ReactNode } from "react";
+
 import { CopyEmail } from "@/components/CopyEmail";
+import { CurrentQuarter } from "@/components/CurrentQuarter";
 import { BriefMotion } from "@/components/motion/BriefMotion";
 import { SectionHead } from "@/components/SectionHead";
 import { SlabLink } from "@/components/SlabLink";
 import type { ContactInfo } from "@/lib/site";
+import { withQuarter } from "@/lib/quarter";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -22,13 +26,19 @@ const EDGES = [
 ] as const;
 
 export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
-  const fields: [label: string, value: string][] = [];
-  if (contact.availability) fields.push(["Status", contact.availability]);
+  const fields: [label: string, value: ReactNode][] = [];
+  if (contact.availability) {
+    // The server's text carries the quarter of the build; the browser puts in the visitor's own.
+    const status = (
+      <CurrentQuarter text={contact.availability} serverText={withQuarter(contact.availability, new Date())} />
+    );
+    fields.push(["Status", status]);
+  }
   fields.push(["Base", contact.location]);
 
   return (
     <section id="contact" className="relative border-t border-border/60" aria-labelledby="contact-heading">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-20">
+      <div className="site-width flex flex-col gap-10 py-20">
         <SectionHead
           number="04"
           label="Open a brief"
@@ -40,7 +50,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
         <BriefMotion className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
           <div className="space-y-6">
             {contact.note && (
-              <p data-brief-line="" className="text-pretty text-base leading-relaxed text-paper/90 sm:text-lg">
+              <p data-brief-line="" className="max-w-measure text-pretty text-base leading-relaxed text-paper/90 sm:text-lg">
                 {contact.note}
               </p>
             )}
@@ -93,7 +103,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
             </div>
 
             {contact.signoff && (
-              <p className="text-pretty text-sm leading-relaxed text-muted-foreground">{contact.signoff}</p>
+              <p className="max-w-measure text-pretty text-sm leading-relaxed text-muted-foreground">{contact.signoff}</p>
             )}
           </div>
         </BriefMotion>

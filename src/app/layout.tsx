@@ -28,6 +28,8 @@ const notoSerifJp = Noto_Serif_JP({
 });
 
 export const metadata: Metadata = {
+  // Makes the generated share image's URL absolute.
+  metadataBase: new URL(siteConfig.url),
   title: `${siteConfig.name} | ${siteConfig.role}`,
   description: siteConfig.hero.description,
   keywords: [...siteConfig.skills, siteConfig.role, siteConfig.location],
@@ -54,8 +56,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJp.variable} bg-background text-foreground antialiased`}>
+    // The font variables sit on <html>, where Tailwind sets the page's `font-sans`.
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJp.variable}`}
+    >
+      <body className="bg-background text-foreground antialiased">
         <InkBackdrop />
         <div className="flex min-h-screen flex-col">
           <RootHeader />

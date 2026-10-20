@@ -16,7 +16,7 @@ export function ExperienceSection({ experiences }: Readonly<ExperienceSectionPro
       className="relative border-t border-border/60"
       aria-labelledby="experience-heading"
     >
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-20">
+      <div className="site-width flex flex-col gap-4 py-20">
         <SectionHead
           number="03"
           label="Service record"

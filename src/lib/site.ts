@@ -1,7 +1,6 @@
 import type { NavbarLink } from "@/components/Navbar";
 import type { ProjectCardProps } from "@/components/ProjectCard";
 import type { SocialLink } from "@/components/SocialLinks";
-import { dynamicIconImports } from "lucide-react/dynamic";
 import {
   SevenElevenImage,
   TheLawSocietyImage,
@@ -20,7 +19,6 @@ import { StaticImageData } from "next/image";
 export interface HeroAction {
   label: string;
   href: string;
-  icon: keyof typeof dynamicIconImports;
   variant?: "default" | "outline" | "ghost";
 }
 
@@ -30,7 +28,6 @@ export interface HeroHighlight {
 }
 
 export interface HeroContent {
-  eyebrow: string;
   title: string;
   /** Part of `title` shown in red. A display hint only: it must appear in `title` word for word. */
   titleEmphasis?: string;
@@ -41,7 +38,6 @@ export interface HeroContent {
   /** The short line under the fields of the hero's ID card. */
   portraitCaption: string;
   actions: HeroAction[];
-  highlights: HeroHighlight[];
 }
 
 export interface AboutHighlight {
@@ -136,6 +132,7 @@ export interface ContactInfo {
   signoff?: string;
   email: string;
   calendarUrl?: string;
+  /** The availability line. `{quarter}` is replaced by the visitor's current quarter, such as "Q4 2026". */
   availability?: string;
   location: string;
   note?: string;
@@ -149,6 +146,8 @@ export interface SectionIntro {
 }
 
 export interface SiteConfig {
+  /** The live site's address, which makes the share image's URL absolute. */
+  url: string;
   name: string;
   role: string;
   location: string;
@@ -164,9 +163,12 @@ export interface SiteConfig {
   experiences: ExperienceItem[];
   contact: ContactInfo;
   githubProfile?: string;
+  /** This site's source code, linked as "View source". */
+  sourceUrl: string;
 }
 
 export const siteConfig: SiteConfig = {
+  url: "https://marlowe-portfolio.vercel.app",
   name: "Kyle Marlowe Moreno",
   role: "Full Stack Developer",
   location: "Cagayan de Oro, PH",
@@ -184,7 +186,6 @@ export const siteConfig: SiteConfig = {
     { icon: "mail", url: "mailto:kyle.marlowe.pacana.moreno@gmail.com" },
   ],
   hero: {
-    eyebrow: "Full Stack Developer",
     title: "Shipping reliable platforms for teams that move fast",
     titleEmphasis: "move fast",
     subtitle: "I plan, design, and build web and mobile products that balance product vision with dependable engineering.",
@@ -197,17 +198,12 @@ export const siteConfig: SiteConfig = {
       {
         label: "View selected work",
         href: "#projects",
-        icon: "arrow-up-right",
       },
       {
         label: "Book a strategy call",
         href: "https://cal.com/kyle-marlowe-moreno-g4jnsr/30min",
-        icon: "calendar",
         variant: "outline",
       },
-    ],
-    highlights: [
-      { label: "Experience", value: "4+ years" },
     ],
   },
   about: {
@@ -323,7 +319,7 @@ export const siteConfig: SiteConfig = {
         "Led the end-to-end migration of a legacy e-commerce website to a modern production platform, independently owning development and delivery for a business serving customers internationally.",
         "Developed and delivered a production Real Estate Finance Management System (REFMS) used internally by Habile's finance department to centralize property, loan, and financial operations.",
       ],
-      technologies: [],
+      technologies: ["Next.js", "Supabase", "Google Cloud Platform", "Render"],
     },
     {
       company: "Rubato Life",
@@ -434,9 +430,10 @@ export const siteConfig: SiteConfig = {
       "Building dependable healthcare, fintech, and platform experiences with teams that value thoughtful engineering and sustainable delivery. Inspired and motivated by my ever loving wife.",
     email: "kyle.marlowe.pacana.moreno@gmail.com",
     calendarUrl: "https://cal.com/kyle-marlowe-moreno-g4jnsr/30min",
-    availability: "Booking new collaborations for Q4 2025",
+    availability: "Booking new collaborations for {quarter}",
     location: "Cagayan de Oro, Philippines",
     note: "Excited to collaborate with teams building healthcare, fintech, and platform-focused products that value thoughtful engineering.",
   },
   githubProfile: "https://github.com/kylemicros",
+  sourceUrl: "https://github.com/kylemicros/portfolio-website",
 };

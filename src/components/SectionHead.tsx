@@ -27,12 +27,12 @@ export function SectionHead({ number, label, headingId, title, intro, className 
           {label}
         </h2>
         <span aria-hidden="true" className="hidden h-px min-w-8 flex-1 self-center bg-border md:block" />
-        <p className="basis-full text-pretty font-mono text-xs leading-relaxed text-muted-foreground md:basis-auto md:max-w-sm md:text-right">
+        <p className="basis-full text-pretty font-mono text-xs leading-relaxed text-muted-foreground md:basis-auto md:max-w-sm md:text-right md:text-balance lg:max-w-xl">
           {title}
         </p>
       </div>
       {intro && (
-        <p className="max-w-3xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p className="max-w-measure text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
           {intro}
         </p>
       )}
