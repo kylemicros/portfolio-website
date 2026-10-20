@@ -7,7 +7,7 @@ import { Seal } from "@/components/Seal";
 import type { ExperienceItem } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-import { Badge } from "./ui/badge";
+import { TechTags } from "./TechTags";
 
 interface ExperienceCardProps {
   experience: ExperienceItem;
@@ -43,20 +43,6 @@ function RecordMark({ experience, size, colour }: Readonly<RecordMarkProps>) {
         )}
       />
     </span>
-  );
-}
-
-function TechTags({ technologies }: Readonly<{ technologies: string[] }>) {
-  return (
-    <ul className="flex flex-wrap gap-1.5">
-      {technologies.map((tech) => (
-        <li key={tech}>
-          <Badge variant="outline" className="border-border/80 text-[0.7rem] font-normal text-paper/85">
-            {tech}
-          </Badge>
-        </li>
-      ))}
-    </ul>
   );
 }
 

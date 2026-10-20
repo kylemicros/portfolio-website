@@ -1,11 +1,12 @@
 import Link from "next/link";
 
+import { CaseDecode } from "@/components/motion/CaseDecode";
+import { CasePreview } from "@/components/motion/CasePreview";
 import { SectionHead } from "@/components/SectionHead";
 import { siteConfig } from "@/lib/site";
 
 import { Each } from "../Each";
-import { ProjectCard, type ProjectCardProps } from "../ProjectCard";
-import { Button } from "../ui/button";
+import { caseFlipId, ProjectCard, type ProjectCardProps } from "../ProjectCard";
 
 interface ProjectsSectionProps {
   projects: ProjectCardProps[];
@@ -13,38 +14,41 @@ interface ProjectsSectionProps {
 }
 
 export function ProjectsSection({ projects, githubUrl = siteConfig.githubProfile }: Readonly<ProjectsSectionProps>) {
+  const previews = projects.map((project, index) => ({ src: project.src, flipId: caseFlipId(index) }));
+
   return (
     <section id="projects" className="relative border-t border-border/60" aria-labelledby="projects-heading">
-      <div className="absolute inset-x-0 top-0 h-px bg-border/70" />
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 py-20">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-20">
+        <SectionHead
+          number="02"
+          label="Cases"
+          headingId="projects-heading"
+          title={siteConfig.projectsHead.title}
+          intro={siteConfig.projectsHead.intro}
+        />
+
         <div className="space-y-6">
-          <SectionHead
-            number="02"
-            label="Cases"
-            headingId="projects-heading"
-            title="Work spanning healthcare, fintech, CRM, and platform launches"
-            intro="Worked on multiple projects with multiple companies ranging from startups to established enterprises, delivering impactful solutions that drive user engagement and business growth."
-          />
+          <CasePreview items={previews}>
+            <CaseDecode>
+              {/* The role keeps the list's semantics in Safari, which drops them without list markers. */}
+              <ol role="list">
+                <Each of={projects} render={(project, index) => <ProjectCard {...project} index={index} />} />
+              </ol>
+            </CaseDecode>
+          </CasePreview>
+
           {githubUrl && (
-            <div className="self-start">
-              <Button variant="ghost" className="rounded-full px-5" asChild>
-                <Link href={githubUrl} target="_blank" rel="noopener noreferrer">
-                  Explore my GitHub profile
-                </Link>
-              </Button>
+            <div className="md:text-right">
+              <Link
+                href={githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block border-b border-blade-hot pb-0.5 text-xs font-semibold uppercase tracking-[0.15em] text-paper transition-colors hover:text-blade-hot focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+              >
+                Explore my GitHub profile
+              </Link>
             </div>
           )}
-        </div>
-
-        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-          <Each
-            of={projects}
-            render={(project) => (
-              <div key={project.title} className="h-full">
-                <ProjectCard {...project} />
-              </div>
-            )}
-          />
         </div>
       </div>
     </section>

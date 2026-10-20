@@ -1,35 +1,26 @@
 /**
- * This is a custom project card component.
- * It displays the image, title, description, and the technologies used in the project.
- * It also includes links to the project's GitHub repository and live demo.
+ * This is a custom project card component, laid out as one case in the Cases index.
+ * It shows the case number, the title, the category and the year, and opens the case file with
+ * the image, the description, the technologies used and the links.
  */
 
 /**
  * Component Structure:
- * Image
- * Title
- * Description
- * Technologies Used (Badges)
- * Links (GitHub, Live Demo)
+ * Row: Case number, Image (phones only), Title, Category, Year, Open file
+ * File: Image (with a LIVE stamp when there is a live demo), Meta, Title, Description,
+ *       Technologies Used (Badges), Links (Live Preview, Repository)
  */
 
-import type { ComponentProps } from "react";
-
 import Image, { StaticImageData } from "next/image";
-import Link from "next/link";
-import { DynamicIcon } from "lucide-react/dynamic";
 
-import { ProjectCardCut } from "@/components/motion/ProjectCardCut";
+import { FileDialog } from "@/components/FileDialog";
+import { SlabLink } from "@/components/SlabLink";
+import { Stamp } from "@/components/Stamp";
 import { cn } from "@/lib/utils";
 
-import { Each } from "./Each";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { TechTags } from "./TechTags";
 
-type CardRootProps = ComponentProps<typeof Card>;
-
-export interface ProjectCardProps extends Omit<CardRootProps, "children"> {
+export interface ProjectCardProps {
   src?: string | StaticImageData;
   title: string;
   description: string;
@@ -40,14 +31,42 @@ export interface ProjectCardProps extends Omit<CardRootProps, "children"> {
   year?: string;
 }
 
+interface CaseRowProps extends ProjectCardProps {
+  /** The case's place in the index, from 0. */
+  index: number;
+}
+
+/** The case number as shown, such as "01" for the first case. */
+export function casePosition(index: number): string {
+  return String(index + 1).padStart(2, "0");
+}
+
+/** Matches a case's pictures (row, hover preview, file) so the file can grow out of them. */
+export function caseFlipId(index: number): string {
+  return `case-${casePosition(index)}`;
+}
+
+// The row's columns: one line from `md`, the thumbnail beside a stack of lines on phones.
+const ROW = cn(
+  "group/row relative grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-x-4 gap-y-1 py-4",
+  "md:grid-cols-[5rem_minmax(0,1fr)_8rem_3.5rem_7.5rem] md:gap-y-0 md:px-2 md:py-5 lg:grid-cols-[6rem_minmax(0,1fr)_10rem_4.5rem_8.5rem]",
+  // A red wash from the left while the row is hovered or has keyboard focus.
+  "before:pointer-events-none before:absolute before:inset-0 before:bg-linear-to-r before:from-blade/20 before:to-transparent before:to-70% before:opacity-0 before:transition-opacity",
+  // The row is the focused element without script (a summary), and holds it with script (a button).
+  "hover:before:opacity-100 focus-visible:before:opacity-100 has-[:focus-visible]:before:opacity-100"
+);
+const LIT =
+  "transition-colors group-hover/row:text-blade-hot group-focus-visible/row:text-blade-hot group-has-[:focus-visible]/row:text-blade-hot";
+
 /**
- * @param src - Image source URL
+ * @param src - Image source
  * @param title - Project title
  * @param description - Project description
  * @param technologies - List of technologies used
  * @param githubLink - URL to the GitHub repository
  * @param liveDemoLink - URL to the live demo
- * @returns A styled project card component
+ * @param index - The case's place in the index
+ * @returns One case: a row of the index that opens the case file
  */
 export function ProjectCard({
   src,
@@ -58,86 +77,91 @@ export function ProjectCard({
   liveDemoLink,
   category,
   year,
-  className,
-  ...props
-}: Readonly<ProjectCardProps>) {
+  index,
+}: Readonly<CaseRowProps>) {
+  const position = casePosition(index);
+  const flipId = caseFlipId(index);
+  const meta = [`Case ${position}`, category, year].filter(Boolean).join(" / ");
+
+  const row = (
+    <>
+      {/* Phones only: a small picture, which the file grows out of. */}
+      <span
+        data-file-media=""
+        data-flip-id={flipId}
+        className="relative row-span-3 block h-12 w-18 overflow-hidden border border-border bg-muted/60 md:hidden"
+      >
+        {src && <Image src={src} alt="" fill sizes="72px" className="object-cover" />}
+      </span>
+
+      <span className={cn("font-mono text-[0.7rem] text-muted-foreground md:text-xs", LIT)}>
+        <span className="sr-only">Case {position}</span>
+        <span aria-hidden="true">
+          CASE <span data-count={index + 1}>{position}</span>
+        </span>
+      </span>
+
+      <h3 className={cn("text-xl leading-tight font-black md:text-2xl lg:text-3xl", LIT)}>
+        <span className="sr-only">{title}</span>
+        <span aria-hidden="true" data-decode="">
+          {title}
+        </span>
+      </h3>
+
+      {/* Stacked under the title on phones; their own columns from `md`. */}
+      <span className="flex flex-wrap gap-x-3 font-mono text-[0.65rem] uppercase tracking-[0.15em] text-muted-foreground md:contents md:text-[0.7rem]">
+        {category && <span>{category}</span>}
+        {year && <span>{year}</span>}
+      </span>
+    </>
+  );
+
   return (
-    <Card
-      {...props}
-      data-project-card=""
-      className={cn(
-        "group relative h-full overflow-hidden border border-border/60 bg-card/70 backdrop-blur transition-transform duration-300 hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl",
-        className
-      )}
-    >
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-linear-to-r from-primary/70 via-secondary/60 to-primary/70 opacity-75" />
-
-      {src ? (
-        <div className="relative mx-6 mt-6 overflow-hidden rounded-lg bg-muted/60 shadow-inner">
-          <div className="relative aspect-16/10 w-full">
-            <Image
-              src={src ?? "/window.svg"}
-              alt={title}
-              fill
-              className="object-cover grayscale-35 saturate-80 transition-[transform,filter] duration-500 ease-out group-focus-within:grayscale-0 group-focus-within:saturate-100 group-hover:scale-105 group-hover:grayscale-0 group-hover:saturate-100"
-              sizes="(max-width: 768px) 100vw, 33vw"
-            />
+    <li data-file="" data-case={index} className="border-t border-border last:border-b">
+      <FileDialog
+        layout="split"
+        row={row}
+        rowClassName={ROW}
+        triggerLabel="Open file"
+        triggerContext={title}
+        triggerClassName={cn(
+          "hidden border-transparent px-0 text-muted-foreground md:col-start-5 md:inline-flex md:justify-self-end",
+          LIT
+        )}
+        title={title}
+        description={<span className="uppercase tracking-[0.1em]">{meta}</span>}
+        media={
+          <div className="relative h-full">
+            <div
+              data-flip-id={flipId}
+              className="relative aspect-16/10 w-full overflow-hidden bg-muted/60 md:aspect-auto md:h-full md:min-h-72"
+            >
+              {src && (
+                <Image src={src} alt={title} fill sizes="(min-width: 768px) 30rem, 100vw" className="object-cover" />
+              )}
+            </div>
+            {liveDemoLink && <Stamp className="absolute bottom-5 left-5 -rotate-8">LIVE</Stamp>}
           </div>
-          <ProjectCardCut />
-        </div>
-      ) : (
-        <div className="mx-6 mt-6 flex aspect-16/10 items-center justify-center rounded-lg bg-muted/60">
-          <span className="text-sm font-medium text-muted-foreground">Preview coming soon</span>
-        </div>
-      )}
-
-      <CardHeader className="gap-4">
-        <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          {category && <span>{category}</span>}
-          {year && <span>{year}</span>}
-        </div>
-        <div className="space-y-2">
-          <CardTitle className="text-balance text-2xl font-semibold text-foreground">
-            {title}
-          </CardTitle>
-          <CardDescription className="text-base leading-relaxed text-muted-foreground">
-            {description}
-          </CardDescription>
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          <Each
-            of={technologies}
-            render={(tech) => (
-              <Badge key={tech} variant="outline" className="border-border/60 bg-background/40 text-xs">
-                {tech}
-              </Badge>
+        }
+      >
+        <p className="text-pretty text-sm leading-relaxed text-paper/90 sm:text-base">{description}</p>
+        <TechTags technologies={technologies} />
+        {(liveDemoLink || githubLink) && (
+          <div className="flex flex-wrap gap-4 pt-1">
+            {liveDemoLink && (
+              <SlabLink href={liveDemoLink} target="_blank" rel="noopener noreferrer">
+                Live Preview
+              </SlabLink>
             )}
-          />
-        </div>
-      </CardContent>
-
-      <CardFooter className="flex flex-col gap-2 border-t border-border/60 bg-background/40 py-6 sm:flex-row">
-        {githubLink && (
-          <Button variant="outline" size="sm" asChild className="sm:flex-1">
-            <Link href={githubLink} target="_blank" rel="noopener noreferrer">
-              <DynamicIcon name="github" className="size-4" />
-              Repository
-            </Link>
-          </Button>
+            {githubLink && (
+              <SlabLink href={githubLink} target="_blank" rel="noopener noreferrer" variant="outline">
+                Repository
+              </SlabLink>
+            )}
+          </div>
         )}
-        {liveDemoLink && (
-          <Button size="sm" asChild className="sm:flex-1">
-            <Link href={liveDemoLink} target="_blank" rel="noopener noreferrer">
-              <DynamicIcon name="external-link" className="size-4" />
-              Live Preview
-            </Link>
-          </Button>
-        )}
-      </CardFooter>
-    </Card>
+      </FileDialog>
+    </li>
   );
 }
 
