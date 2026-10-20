@@ -67,7 +67,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
             <div className="flex flex-col gap-3">
               <Link
                 href={`mailto:${contact.email}`}
-                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="text-sm text-muted-foreground wrap-anywhere transition-colors hover:text-foreground"
               >
                 {contact.email}
               </Link>
