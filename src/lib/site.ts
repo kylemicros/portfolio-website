@@ -13,6 +13,7 @@ import {
   NextStepLogo,
   LogicallLogo,
   ApollotechLogo,
+  ApoloniaPosImage,
 } from "@/assets/img";
 import { StaticImageData } from "next/image";
 
@@ -102,6 +103,20 @@ const skills = [
   "Vitest",
   "CI/CD",
   "Figma",
+  "Angular",
+  "Flutter",
+  "Dart",
+  "Python",
+  "FastAPI",
+  "MySQL",
+  "Redis",
+  "Supabase",
+  "Firebase",
+  "Google Cloud Platform",
+  "CircleCI",
+  "Vercel",
+  "Codex",
+  "Claude Code",
 ] as const;
 
 export type Skill = (typeof skills)[number];
@@ -113,11 +128,24 @@ export interface SkillGroup {
 }
 
 export interface ContactInfo {
+  /** The Brief's title, set small at the end of its section head. */
+  title: string;
+  /** The paragraph under the Brief's section head. */
+  intro?: string;
+  /** The closing line under the contact box. */
+  signoff?: string;
   email: string;
   calendarUrl?: string;
   availability?: string;
   location: string;
   note?: string;
+}
+
+export interface SectionIntro {
+  /** The section title, set small at the end of its section head. */
+  title: string;
+  /** The paragraph under the section head. */
+  intro?: string;
 }
 
 export interface SiteConfig {
@@ -128,6 +156,8 @@ export interface SiteConfig {
   socialLinks: SocialLink[];
   hero: HeroContent;
   about: AboutContent;
+  /** The Cases section's head. */
+  projectsHead: SectionIntro;
   projects: ProjectCardProps[];
   skills: Skill[];
   skillGroups: SkillGroup[];
@@ -141,11 +171,12 @@ export const siteConfig: SiteConfig = {
   role: "Full Stack Developer",
   location: "Cagayan de Oro, PH",
   navLinks: [
-    { label: "Home", href: "#home" },
-    { label: "Profile", href: "#about" },
-    { label: "Cases", href: "#projects" },
-    { label: "Record", href: "#experience" },
-    { label: "Brief", href: "#contact" },
+    // The home page's sections, so the links work from any page.
+    { label: "Home", href: "/#home" },
+    { label: "Profile", href: "/#about" },
+    { label: "Cases", href: "/#projects" },
+    { label: "Record", href: "/#experience" },
+    { label: "Brief", href: "/#contact" },
   ],
   socialLinks: [
     { icon: "github", url: "https://github.com/kylemicros" },
@@ -201,7 +232,21 @@ export const siteConfig: SiteConfig = {
       { label: "Mindset", value: "Continuous improvement & learning" },
     ],
   },
+  projectsHead: {
+    title: "Work spanning healthcare, fintech, CRM, and platform launches",
+    intro:
+      "Worked on multiple projects with multiple companies ranging from startups to established enterprises, delivering impactful solutions that drive user engagement and business growth.",
+  },
   projects: [
+    {
+      src: ApoloniaPosImage,
+      title: "Apolonia POS",
+      description: "A point-of-sale and inventory management platform in one: ordering and checkout, ingredient stock, purchasing, expenses and daily reporting, run from a single app.",
+      technologies: ["Next.js", "Supabase", "Vercel"],
+      category: "POS + IMS",
+      year: "2026",
+      liveDemoLink: "https://apolonia-pos.vercel.app/",
+    },
     {
       src: ClinicEzImage,
       title: "ClinicEZ",
@@ -214,10 +259,11 @@ export const siteConfig: SiteConfig = {
     {
       src: TheLawSocietyImage,
       title: "Solicitor Web Scraper",
-      description: "A 'The Law Society' web scraping tool that can extract 10,000 emails in a span of 2 hours, capable of bypassing CAPTCHAs.",
+      description: "A 'The Law Society' web scraping tool that can collect 1,000 emails in 15 minutes and is built to run reliably on rate-limited and protected sites.",
       technologies: ["TypeScript", "Puppeteer", "Crawlee"],
       category: "Web Scraping",
       year: "2025",
+      imageFit: "contain",
       githubLink: "https://github.com/kylemicros/solicitor-scraper-eu",
     },
     {
@@ -236,6 +282,7 @@ export const siteConfig: SiteConfig = {
       technologies: ["Spring Boot", "Quasar", "TypeScript", "ShadCN UI", "Java", "Docker", "Kubernetes", "Rancher"],
       category: "Microservice",
       year: "2025",
+      imageFit: "contain",
     },
     {
       src: ConexusImage,
@@ -251,15 +298,33 @@ export const siteConfig: SiteConfig = {
   skillGroups: [
     {
       label: "Frontend",
-      skills: ["Next.js", "React", "Vue", "Quasar", "TypeScript", "Tailwind CSS", "Radix UI", "ShadCN UI", "TanStack Router"],
+      skills: ["Next.js", "React", "Vue", "Quasar", "Angular", "TypeScript", "Tailwind CSS", "Radix UI", "ShadCN UI", "TanStack Router"],
     },
-    { label: "Mobile", skills: ["React Native", "Expo"] },
-    { label: "Backend", skills: ["NestJS", "ASP.NET Core", "C#", "Spring Boot", "Java", "Node.js", "Express"] },
-    { label: "Data", skills: ["PostgreSQL", "Prisma", "Neon"] },
-    { label: "Infra", skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "CI/CD"] },
-    { label: "Testing and tools", skills: ["Vitest", "Playwright", "Puppeteer", "Figma"] },
+    { label: "Mobile", skills: ["React Native", "Expo", "Flutter", "Dart"] },
+    {
+      label: "Backend",
+      skills: ["NestJS", "ASP.NET Core", "C#", "Spring Boot", "Java", "Node.js", "Express", "Python", "FastAPI"],
+    },
+    { label: "Data", skills: ["PostgreSQL", "MySQL", "Redis", "Prisma", "Neon", "Supabase", "Firebase"] },
+    {
+      label: "Infra",
+      skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "Google Cloud Platform", "CircleCI", "Vercel", "CI/CD"],
+    },
+    { label: "Testing and tools", skills: ["Vitest", "Playwright", "Puppeteer", "Figma", "Codex", "Claude Code"] },
   ],
   experiences: [
+    {
+      company: "Habile Group",
+      role: "Freelance Developer",
+      start: "May 2026",
+      end: "Present",
+      summary: "",
+      achievements: [
+        "Led the end-to-end migration of a legacy e-commerce website to a modern production platform, independently owning development and delivery for a business serving customers internationally.",
+        "Developed and delivered a production Real Estate Finance Management System (REFMS) used internally by Habile's finance department to centralize property, loan, and financial operations.",
+      ],
+      technologies: [],
+    },
     {
       company: "Rubato Life",
       logo: RubatoLifeLogo,
@@ -267,7 +332,12 @@ export const siteConfig: SiteConfig = {
       start: "December 2025",
       end: "Present",
       summary: "",
-      achievements: [],
+      achievements: [
+        "Lead development and ongoing engineering of a production cross-platform music therapy platform actively used by healthcare organizations across the United States, integrating AI-powered features, machine learning, real-time processing, and third-party services.",
+        "Assumed end-to-end engineering ownership of the production platform, taking responsibility for the codebase, infrastructure, technical delivery, troubleshooting, and ongoing development.",
+        "Design, implement, and maintain NestJS backend microservices integrating cloud services, authentication, data pipelines, and external healthcare and music platforms.",
+        "Led the successful migration of production infrastructure from Google Cloud Platform (GCP) to Microsoft Azure, covering infrastructure validation, service migration, replication planning, and production cutover, while reducing recurring cloud infrastructure costs.",
+      ],
       technologies: ["NestJS", "TypeScript", "Docker", "Docker Compose", "MySQL", "CircleCI", "Google Cloud Platform", "CLI Apps"],
     },
     {
@@ -357,6 +427,11 @@ export const siteConfig: SiteConfig = {
     }
   ],
   contact: {
+    title: "Let’s shape your next product milestone",
+    intro:
+      "I collaborate with teams who value strong design partnerships, clear communication, and a culture of experimentation. Tell me about your goals and we’ll explore how to reach them together.",
+    signoff:
+      "Building dependable healthcare, fintech, and platform experiences with teams that value thoughtful engineering and sustainable delivery. Inspired and motivated by my ever loving wife.",
     email: "kyle.marlowe.pacana.moreno@gmail.com",
     calendarUrl: "https://cal.com/kyle-marlowe-moreno-g4jnsr/30min",
     availability: "Booking new collaborations for Q4 2025",

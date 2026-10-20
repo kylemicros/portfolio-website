@@ -115,8 +115,11 @@ export function HeroSection() {
                 alt={hero.portraitAlt}
                 width={640}
                 height={800}
+                // The card's width less its padding: up to 344px on phones, 220px beside the
+                // fields from `sm`, 260px in the left column from `lg`.
+                sizes="(min-width: 1024px) 260px, (min-width: 640px) 220px, 344px"
                 className="aspect-4/5 h-auto w-full object-cover grayscale-[0.3]"
-                priority
+                preload
               />
             </div>
             {/* Hidden until the hero's entrance lands it; shown in place with reduced motion. */}

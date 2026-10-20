@@ -7,6 +7,11 @@ import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
 
+// Without JavaScript the scroll states never switch on, so the header keeps the ink backdrop all
+// the time and content never shows through it.
+const NO_SCRIPT_HEADER =
+  "[data-site-header]{background-color:color-mix(in oklab,var(--background) 80%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}";
+
 interface HeaderInkProps extends ComponentProps<"header"> {
   /** The section the header stays transparent over. Pages without it get the ink header. */
   heroSelector?: string;
@@ -59,11 +64,15 @@ export function HeaderInk({ heroSelector = "#home", className, children, ...prop
     <header
       {...props}
       ref={headerRef}
+      data-site-header=""
       className={cn(
         "border-b border-transparent bg-transparent transition-[background-color,border-color,backdrop-filter] duration-300 data-ink:border-blade/70 data-ink:bg-background/80 data-ink:backdrop-blur-md data-lifted:bg-background/80 data-lifted:backdrop-blur-md",
         className
       )}
     >
+      <noscript>
+        <style>{NO_SCRIPT_HEADER}</style>
+      </noscript>
       {children}
     </header>
   );

@@ -10,7 +10,7 @@ import type { Skill } from "@/lib/site";
 //   trademarks of their owners.
 // - Devicon (devicon.dev), MIT licence, Copyright (c) 2015 konpa: C#, Azure, AWS and Playwright,
 //   which Simple Icons does not carry.
-// - "pipeline": drawn for this site, for skills with no brand mark of their own.
+// - "pipeline" and "terminal": drawn for this site, for skills with no brand mark of their own.
 // - "seal-nazo": the glyph 謎 from Noto Serif JP (SIL Open Font License 1.1).
 // Brand path numbers in the sprite are rounded (two decimals in a 24-unit box, one in a 128-unit
 // box), which changes nothing visible at the sizes used.
@@ -50,9 +50,26 @@ export type SpriteId =
   | "playwright"
   | "puppeteer"
   | "figma"
+  | "angular"
+  | "flutter"
+  | "dart"
+  | "python"
+  | "fastapi"
+  | "mysql"
+  | "redis"
+  | "supabase"
+  | "firebase"
+  | "googlecloud"
+  | "circleci"
+  | "vercel"
+  | "claudecode"
+  | "terminal"
   | "seal-nazo";
 
-/** One mark for every skill. React Native shares React's; CI/CD uses the generic pipeline glyph. */
+/**
+ * One mark for every skill. React Native shares React's; CI/CD uses the generic pipeline glyph and
+ * Codex the generic terminal glyph.
+ */
 export const TECH_ICONS: Record<Skill, SpriteId> = {
   "Next.js": "nextdotjs",
   React: "react",
@@ -85,6 +102,20 @@ export const TECH_ICONS: Record<Skill, SpriteId> = {
   Playwright: "playwright",
   Puppeteer: "puppeteer",
   Figma: "figma",
+  Angular: "angular",
+  Flutter: "flutter",
+  Dart: "dart",
+  Python: "python",
+  FastAPI: "fastapi",
+  MySQL: "mysql",
+  Redis: "redis",
+  Supabase: "supabase",
+  Firebase: "firebase",
+  "Google Cloud Platform": "googlecloud",
+  CircleCI: "circleci",
+  Vercel: "vercel",
+  Codex: "terminal",
+  "Claude Code": "claudecode",
 };
 
 /** The `href` for a symbol in the sprite. */
