@@ -81,7 +81,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
                   rel="noopener noreferrer"
                   className="text-sm text-blade-hot transition-colors hover:text-foreground"
                 >
-                  Schedule a call →
+                  Schedule a call
                 </Link>
               )}
             </div>
@@ -96,7 +96,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
           </p>
           <div className="flex flex-wrap items-center gap-4">
             <Link href="#home" className="transition-colors hover:text-foreground">
-              Back to top ↑
+              Back to top
             </Link>
             <span className="text-border/60">·</span>
             <Link

@@ -158,7 +158,7 @@ export const siteConfig: SiteConfig = {
     titleEmphasis: "move fast",
     subtitle: "I plan, design, and build web and mobile products that balance product vision with dependable engineering.",
     description:
-      "From multi-tenant suites to startup MVPs, I work with founders and cross-functional teams to shape resilient architectures, streamline delivery, and ship features users trust.",
+      "From multi-tenant suites to startup MVPs, I work with founders and cross-functional teams to design architectures that hold up, speed up delivery, and ship features users trust.",
     portrait: MeImage,
     portraitAlt: "Portrait of Kyle Marlowe Moreno",
     portraitCaption: "Focused on dependable healthcare, fintech, and platform experiences.",
@@ -182,7 +182,7 @@ export const siteConfig: SiteConfig = {
   about: {
     title: "Pairing product empathy with dependable engineering",
     description:
-      "I stay close to the business context—mapping operations, refining developer workflows, and delivering software that scales responsibly. My focus is on building maintainable systems without slowing teams down.",
+      "I stay close to the business context, mapping operations, refining developer workflows, and delivering software that scales responsibly. My focus is on building maintainable systems without slowing teams down.",
     highlights: [
       {
         title: "Multi-tenant platform leadership",
@@ -306,9 +306,9 @@ export const siteConfig: SiteConfig = {
       summary:
         "Leading the rebuild of a multi-tenant cross-platform healthcare management suite that powers clinics, partner hospitals, and patient-facing channels.",
       achievements: [
-        "Architected domain-driven service boundaries with shared React/React Native component libraries, ensuring consistent UX across web and mobile platforms",
+        "Architected domain-driven service boundaries with shared React/React Native component libraries, so web and mobile share one consistent UX",
         "Built Azure and AWS CI/CD pipelines integrated with automated testing (Vitest, Playwright), accelerating release cycles from weekly to daily deployments",
-        "Mentored engineering teams on TypeScript best practices, accessibility-first UI design, and comprehensive documentation standards to elevate code quality across squads",
+        "Mentored engineering teams on TypeScript best practices, accessibility-first UI design, and comprehensive documentation standards that raised code quality across squads",
       ],
       technologies: ["Next.js", "TypeScript", "C#", "ASP.NET Core", "React", "React Native", "Expo", "Node.js", "Prisma", "Tailwind CSS", "Vitest", "Azure", "AWS", "Figma"],
       url: "#",
@@ -323,7 +323,7 @@ export const siteConfig: SiteConfig = {
         "Worked on a customer relations management SaaS platform for multiple call centers in the Philippines.",
       achievements: [
         "Analyzed and optimized Bubble.io and Xano workflows, refactoring critical business logic into monitored microservices to minimize downtime and improve reliability",
-        "Implemented environment-specific deployment scripts, real-time usage monitoring dashboards, and automated alerting systems to ensure transaction integrity and business continuity",
+        "Implemented environment-specific deployment scripts, real-time usage monitoring dashboards, and automated alerting systems that protect transaction integrity and keep the business running",
       ],
       technologies: ["Bubble.io", "Xano", "Postman", "Stripe", "PayPal", "AWS"],
       url: "https://northwind.vc",
@@ -351,7 +351,7 @@ export const siteConfig: SiteConfig = {
         "Partner with founders and SMEs to ideate, prototype, and ship cross-platform products from discovery to hand-off.",
       achievements: [
         "Launched web and mobile apps for retail, hospitality, and nonprofit clients with reusable codebases their teams can maintain",
-        "Document product decisions, design systems, and runbooks so stakeholders stay empowered after launch",
+        "Document product decisions, design systems, and runbooks so stakeholders can run things on their own after launch",
       ],
       technologies: ["Next.js", "React", "React Native", "Expo", "Node.js", "Express", "Tailwind CSS", "AWS", "Azure", "PostgreSQL"],
     }
