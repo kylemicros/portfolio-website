@@ -118,7 +118,7 @@ export function ProjectCard({
 
       <CardFooter className="flex flex-col gap-2 border-t border-border/60 bg-background/40 py-6 sm:flex-row">
         {githubLink && (
-          <Button variant="outline" size="sm" asChild className="flex-1">
+          <Button variant="outline" size="sm" asChild className="sm:flex-1">
             <Link href={githubLink} target="_blank" rel="noopener noreferrer">
               <DynamicIcon name="github" className="size-4" />
               Repository
@@ -126,7 +126,7 @@ export function ProjectCard({
           </Button>
         )}
         {liveDemoLink && (
-          <Button size="sm" asChild className="flex-1">
+          <Button size="sm" asChild className="sm:flex-1">
             <Link href={liveDemoLink} target="_blank" rel="noopener noreferrer">
               <DynamicIcon name="external-link" className="size-4" />
               Live Preview
