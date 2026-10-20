@@ -141,11 +141,11 @@ export const siteConfig: SiteConfig = {
     {
       src: ClinicEzImage,
       title: "ClinicEZ",
-      description: "A cross-platform, multi-tenant healthcare information management system (HIMS) for instituional clinics, serving over 10,000 users.",
+      description: "A cross-platform, multi-tenant healthcare information management system (HIMS) for institutional clinics, serving over 10,000 users.",
       technologies: ["Next.js", "TypeScript", "Prisma", "Neon", "Vercel"],
       category: "Cross-Platform",
       year: "2025",
-      liveDemoLink: "https://tryconexus.com/",
+      liveDemoLink: "https://www.clinicez.net/v2",
     },
     {
       src: TheLawSocietyImage,
