@@ -20,6 +20,8 @@ export interface HeroHighlight {
 export interface HeroContent {
   eyebrow: string;
   title: string;
+  /** Part of `title` shown in red. A display hint only: it must appear in `title` word for word. */
+  titleEmphasis?: string;
   subtitle: string;
   description: string;
   portrait: string | StaticImageData;
@@ -93,6 +95,7 @@ export const siteConfig: SiteConfig = {
   hero: {
     eyebrow: "Full Stack Developer",
     title: "Shipping reliable platforms for teams that move fast",
+    titleEmphasis: "move fast",
     subtitle: "I plan, design, and build web and mobile products that balance product vision with dependable engineering.",
     description:
       "From multi-tenant suites to startup MVPs, I work with founders and cross-functional teams to shape resilient architectures, streamline delivery, and ship features users trust.",
