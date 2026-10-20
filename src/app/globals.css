@@ -9,6 +9,7 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-noto-serif-jp);
+  --font-brush: var(--font-yuji-syuku);
   --color-blade: var(--blade);
   --color-blade-hot: var(--blade-hot);
   --color-paper: var(--paper);
@@ -125,7 +126,9 @@
   * {
     @apply border-border outline-ring;
   }
-  html {
+  /* Turned on by script once the page has loaded, so the browser's own scroll on load (to a
+     link's #target, or back to the place before a reload) is instant and lands first. */
+  html[data-scroll-ready] {
     scroll-behavior: smooth;
   }
   body {

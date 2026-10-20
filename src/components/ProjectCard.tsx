@@ -19,6 +19,7 @@ import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { DynamicIcon } from "lucide-react/dynamic";
 
+import { ProjectCardCut } from "@/components/motion/ProjectCardCut";
 import { cn } from "@/lib/utils";
 
 import { Each } from "./Each";
@@ -63,6 +64,7 @@ export function ProjectCard({
   return (
     <Card
       {...props}
+      data-project-card=""
       className={cn(
         "group relative h-full overflow-hidden border border-border/60 bg-card/70 backdrop-blur transition-transform duration-300 hover:-translate-y-1 hover:border-primary/60 hover:shadow-xl",
         className
@@ -77,10 +79,11 @@ export function ProjectCard({
               src={src ?? "/window.svg"}
               alt={title}
               fill
-              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              className="object-cover grayscale-35 saturate-80 transition-[transform,filter] duration-500 ease-out group-focus-within:grayscale-0 group-focus-within:saturate-100 group-hover:scale-105 group-hover:grayscale-0 group-hover:saturate-100"
               sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
+          <ProjectCardCut />
         </div>
       ) : (
         <div className="mx-6 mt-6 flex aspect-16/10 items-center justify-center rounded-lg bg-muted/60">

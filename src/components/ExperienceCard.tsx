@@ -14,10 +14,13 @@ export function ExperienceCard({ experience, index, className }: Readonly<Experi
   const position = String(index + 1).padStart(2, "0");
 
   return (
-    <article className="relative pb-12 last:pb-0">
+    <article data-reveal="item" className="relative pb-12 last:pb-0">
       <div className="absolute -left-9 top-12 flex items-center sm:top-14">
         <div className="h-px w-5 bg-border/60 sm:w-6" aria-hidden="true" />
-        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-background text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-muted-foreground sm:h-10 sm:w-10">
+        <span
+          data-timeline-marker=""
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-blade-hot bg-background text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-blade-hot transition-colors duration-300 data-cold:border-border/70 data-cold:text-muted-foreground sm:h-10 sm:w-10"
+        >
           {position}
         </span>
       </div>

@@ -1,11 +1,12 @@
 "use client";
 
 import type { DetailedHTMLProps, HTMLAttributes } from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import Link from "next/link";
 import { MenuIcon } from "lucide-react";
 
+import { HeaderInk } from "@/components/motion/HeaderInk";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -25,25 +26,10 @@ type RootHeaderProps = DetailedHTMLProps<HTMLAttributes<HTMLElement>, HTMLElemen
 
 export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
   const { navLinks, socialLinks, contact, name, role } = siteConfig;
-  const [isScrolled, setIsScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 12);
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    <header
-      {...props}
-      className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
-        isScrolled ? "bg-background/30 backdrop-blur-md shadow-md" : "bg-background/70 backdrop-blur-xl",
-        className
-      )}
-    >
+    <HeaderInk {...props} className={cn("sticky top-0 z-50 w-full", className)}>
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
         <Link
           href="#home"
@@ -58,9 +44,9 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
           </div>
         </Link>
 
-        <Navbar links={navLinks} className="hidden md:flex" />
+        <Navbar links={navLinks} className="hidden lg:flex" />
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-3 lg:flex">
           <SocialLinks links={socialLinks.slice(0, 3)} className="gap-3" />
           {contact.calendarUrl && (
             <Button variant="outline" size="sm" asChild>
@@ -71,7 +57,7 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
           )}
         </div>
 
-        <div className="flex items-center md:hidden">
+        <div className="flex items-center lg:hidden">
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
               <Button
@@ -144,6 +130,6 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
           </Sheet>
         </div>
       </div>
-    </header>
+    </HeaderInk>
   );
 }
