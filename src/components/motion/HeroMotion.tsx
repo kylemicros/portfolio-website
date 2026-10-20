@@ -25,11 +25,94 @@ const SLASH_AT = 0.08;
 const SWING_END = SLASH_AT + 0.43;
 const SMALL_SCREEN = 640;
 
+// The kanji aura's values come from the approved demo, in absolute pixels at every kanji size,
+// so the bursts read as a glitch on the smaller real kanji too.
+const GLITCH_STEPS = 6;
+const GLITCH_STEP = 0.035;
+const GLITCH_RESET = 0.23;
+
+/**
+ * Starts the kanji's idle motion: a slow float, a breathing glow and short glitch bursts
+ * every 2.2 to 4.2 s. It pauses while the kanji is off screen (or hidden, as under 480 px)
+ * and while the tab is hidden. Returns a function that stops it and restores the layers.
+ */
+function startKanjiAura(kanji: Element): () => void {
+  const float = kanji.querySelector("[data-kanji-float]");
+  const glow = kanji.querySelector("[data-kanji-glow]");
+  const hot = kanji.querySelector('[data-kanji-glitch="hot"]');
+  const paper = kanji.querySelector('[data-kanji-glitch="paper"]');
+  const main = kanji.querySelector("[data-kanji-main]");
+  if (!float || !glow || !hot || !paper || !main) return () => {};
+
+  const random = gsap.utils.random;
+  let paused = true;
+  let burstTl: gsap.core.Timeline | undefined;
+  let next: gsap.core.Tween | undefined;
+
+  const floatTween = gsap.to(float, { y: -12, duration: 2.6, ease: "sine.inOut", yoyo: true, repeat: -1, paused: true });
+  // The glow fades up from nothing first, so it never pops in, then breathes.
+  const glowTl = gsap
+    .timeline({ paused: true })
+    .to(glow, { opacity: 0.3, duration: 0.6, ease: "sine.out" })
+    .fromTo(glow, { opacity: 0.3 }, { opacity: 0.7, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1 });
+
+  // Six instant steps 35 ms apart, then everything back at rest at 0.23 s. Sets only, no tweens.
+  const burst = () => {
+    burstTl = gsap.timeline({
+      paused,
+      onComplete: () => {
+        next = gsap.delayedCall(random(2.2, 4.2), burst);
+        if (paused) next.pause();
+      },
+    });
+    for (let i = 0; i < GLITCH_STEPS; i++) {
+      const top = random(0, 85);
+      const height = random(4, 18);
+      burstTl
+        .set(hot, { opacity: 0.85, x: random(-14, -4), clipPath: `inset(${top}% 0 ${100 - top - height}% 0)` }, i * GLITCH_STEP)
+        .set(paper, { opacity: 0.6, x: random(4, 12), clipPath: `inset(${random(0, 85)}% 0 ${random(5, 80)}% 0)` }, i * GLITCH_STEP)
+        .set(main, { x: random(-5, 5), skewX: random(-6, 6) }, i * GLITCH_STEP);
+    }
+    burstTl.set([hot, paper], { opacity: 0 }, GLITCH_RESET).set(main, { x: 0, skewX: 0 }, GLITCH_RESET);
+  };
+  next = gsap.delayedCall(0.5, burst);
+  next.pause();
+
+  const setPaused = (value: boolean) => {
+    paused = value;
+    for (const animation of [floatTween, glowTl, burstTl, next]) {
+      if (!animation) continue;
+      if (value) animation.pause();
+      else animation.resume();
+    }
+  };
+
+  let inView = false;
+  const update = () => setPaused(!inView || document.hidden);
+  const observer = new IntersectionObserver(([entry]) => {
+    inView = entry?.isIntersecting ?? false;
+    update();
+  });
+  observer.observe(kanji);
+  document.addEventListener("visibilitychange", update);
+
+  return () => {
+    observer.disconnect();
+    document.removeEventListener("visibilitychange", update);
+    next?.kill();
+    burstTl?.kill();
+    floatTween.kill();
+    glowTl.kill();
+    gsap.set([float, glow, hot, paper, main], { clearProps: "transform,opacity,clipPath" });
+  };
+}
+
 /**
  * Plays the hero entrance over the text column: the kanji brushes in, the heading lines are
  * cut across in red, one big slash splits the column and settles, then the buttons settle.
  * The text is fully visible before, during and after; the motion only plays over it.
- * With reduced motion only the scar is shown. Without JavaScript nothing changes.
+ * Afterwards the kanji floats, its glow breathes and it glitches now and then.
+ * With reduced motion only the scar and a still glow are shown. Without JavaScript nothing changes.
  */
 export function HeroMotion({ children, kanjiSelector, className }: Readonly<HeroMotionProps>) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -121,7 +204,14 @@ export function HeroMotion({ children, kanjiSelector, className }: Readonly<Hero
 
         tl.call(() => bars.replaceChildren());
 
-        return () => bars.replaceChildren();
+        // 5. Once the opening has finished, the kanji keeps a quiet idle motion.
+        let stopAura: (() => void) | undefined;
+        if (kanji) tl.call(() => (stopAura = startKanjiAura(kanji)));
+
+        return () => {
+          stopAura?.();
+          bars.replaceChildren();
+        };
       };
 
       // Lines are measured and the cut is placed once the fonts have loaded, so nothing shifts.
@@ -129,7 +219,12 @@ export function HeroMotion({ children, kanjiSelector, className }: Readonly<Hero
         if (cancelled) return;
         mm = gsap.matchMedia();
         mm.add(MOTION_OK, play);
-        mm.add(MOTION_REDUCED, () => slashRef.current?.showScar());
+        mm.add(MOTION_REDUCED, () => {
+          slashRef.current?.showScar();
+          // A still glow behind the kanji, with no float and no bursts.
+          const glow = kanjiSelector ? document.querySelector(`${kanjiSelector} [data-kanji-glow]`) : null;
+          if (glow) gsap.set(glow, { opacity: 0.5 });
+        });
       });
 
       return () => {

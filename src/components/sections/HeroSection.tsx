@@ -35,7 +35,7 @@ function renderTitle(title: string, emphasis?: string) {
 }
 
 export function HeroSection() {
-  const { hero, socialLinks, location } = siteConfig;
+  const { hero } = siteConfig;
 
   return (
     <section
@@ -49,7 +49,7 @@ export function HeroSection() {
       </div>
 
       <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 pb-20 pt-12 sm:gap-12 sm:pt-14 md:gap-14 lg:flex-row lg:items-center lg:gap-24 lg:pt-18 xl:pt-20">
-        <KanjiNightRaid className="pointer-events-none absolute right-6 top-12 hidden h-[clamp(80px,13vw,190px)] min-[480px]:block sm:top-14 lg:right-auto lg:left-1/2 lg:top-18 lg:-translate-x-1/2 xl:top-20" />
+        <KanjiNightRaid className="pointer-events-none absolute right-6 top-12 hidden min-[480px]:block sm:top-14 lg:right-auto lg:left-1/2 lg:top-18 lg:-translate-x-1/2 xl:top-20" />
 
         <HeroMotion className="flex-1" kanjiSelector="[data-hero-kanji]">
           <div className="space-y-10">
@@ -87,42 +87,6 @@ export function HeroSection() {
                   </Link>
                 </Button>
               ))}
-            </div>
-
-            <div className="grid gap-4 min-[480px]:grid-cols-3">
-              {hero.highlights.map((highlight) => (
-                <div
-                  key={highlight.label}
-                  className="rounded-2xl border border-border/60 border-l-blade/70 bg-card/70 p-4 text-center shadow-sm backdrop-blur"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
-                    {highlight.label}
-                  </p>
-                  <p className="mt-2 font-display text-2xl font-bold text-foreground">{highlight.value}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span className="rounded-full border border-border/60 px-3 py-1 text-xs uppercase tracking-[0.3em]">
-                {location}
-              </span>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                {socialLinks.slice(0, 3).map((link) => (
-                  <Button
-                    key={link.url}
-                    variant="ghost"
-                    size="icon-sm"
-                    asChild
-                    className="rounded-full border border-transparent text-muted-foreground hover:border-blade/60 hover:text-foreground"
-                    aria-label={`Navigate to ${link.icon}`}
-                  >
-                    <Link href={link.url} target="_blank" rel="noopener noreferrer">
-                      <DynamicIcon name={link.icon} className="size-4" />
-                    </Link>
-                  </Button>
-                ))}
-              </div>
             </div>
           </div>
         </HeroMotion>

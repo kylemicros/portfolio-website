@@ -10,39 +10,64 @@ interface KanjiNightRaidProps {
   className?: string;
 }
 
+const LAYER = "absolute inset-0 size-full overflow-visible";
+
 /**
  * The vertical red kanji accent. Decorative, so hidden from assistive technology.
- * Fully drawn in the markup. A second "wet ink" layer over it starts transparent and is
- * only brushed in by script (`data-kanji-wet`, `data-kanji-wipe`), so the glyphs never hide.
+ * The glyphs are fully drawn in the markup. Every extra layer starts transparent and is only
+ * used by script, so without JavaScript (or with reduced motion) the glyphs never hide:
+ * - `data-kanji-wet` and `data-kanji-wipe`: a wet ink layer brushed down once on load;
+ * - `data-kanji-float`: everything that floats together;
+ * - `data-kanji-glow`: a blurred copy behind the glyphs;
+ * - `data-kanji-glitch="hot"` and `"paper"`: offset copies shown in short glitch bursts;
+ * - `data-kanji-main`: the glyphs themselves, jittered during a burst.
+ * The height is a CSS variable so the glow's blur scales with it.
  */
 export function KanjiNightRaid({ className }: Readonly<KanjiNightRaidProps>) {
   return (
-    <svg
-      viewBox="0 0 1000 2000"
+    <div
       aria-hidden="true"
-      focusable="false"
       data-hero-kanji=""
-      className={cn("aspect-1/2 w-auto", className)}
+      className={cn("relative aspect-1/2 h-(--kanji-h) [--kanji-h:clamp(80px,13vw,190px)]", className)}
     >
-      <defs>
-        <linearGradient id="kanji-wipe-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="white" />
-          <stop offset="0.85" stopColor="white" />
-          <stop offset="1" stopColor="white" stopOpacity="0" />
-        </linearGradient>
-        <mask id="kanji-wipe-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="2000">
-          <rect data-kanji-wipe="" x="0" y="-2400" width="1000" height="2400" fill="url(#kanji-wipe-fade)" />
-        </mask>
-      </defs>
-      <g className="fill-blade/85">
-        <g id="kanji-night-raid-glyphs">
-          <path d={YORU} />
-          <path d={SHUU} />
-        </g>
-      </g>
-      <g data-kanji-wet="" opacity={0} mask="url(#kanji-wipe-mask)" className="fill-blade-hot">
-        <use href="#kanji-night-raid-glyphs" />
-      </g>
-    </svg>
+      <div data-kanji-float="" className="absolute inset-0 will-change-transform">
+        {/* Blur of 18 px at a 560 px tall kanji, scaled to the real height. */}
+        <svg
+          viewBox="0 0 1000 2000"
+          focusable="false"
+          data-kanji-glow=""
+          className={cn(LAYER, "fill-blade-hot opacity-0 blur-[calc(var(--kanji-h)*0.032)] will-change-[opacity]")}
+        >
+          <use href="#kanji-night-raid-glyphs" />
+        </svg>
+        <svg viewBox="0 0 1000 2000" focusable="false" data-kanji-glitch="hot" className={cn(LAYER, "fill-blade-hot opacity-0")}>
+          <use href="#kanji-night-raid-glyphs" />
+        </svg>
+        <svg viewBox="0 0 1000 2000" focusable="false" data-kanji-glitch="paper" className={cn(LAYER, "fill-paper opacity-0")}>
+          <use href="#kanji-night-raid-glyphs" />
+        </svg>
+        <svg viewBox="0 0 1000 2000" focusable="false" data-kanji-main="" className={LAYER}>
+          <defs>
+            <linearGradient id="kanji-wipe-fade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="white" />
+              <stop offset="0.85" stopColor="white" />
+              <stop offset="1" stopColor="white" stopOpacity="0" />
+            </linearGradient>
+            <mask id="kanji-wipe-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="2000">
+              <rect data-kanji-wipe="" x="0" y="-2400" width="1000" height="2400" fill="url(#kanji-wipe-fade)" />
+            </mask>
+          </defs>
+          <g className="fill-blade/85">
+            <g id="kanji-night-raid-glyphs">
+              <path d={YORU} />
+              <path d={SHUU} />
+            </g>
+          </g>
+          <g data-kanji-wet="" opacity={0} mask="url(#kanji-wipe-mask)" className="fill-blade-hot">
+            <use href="#kanji-night-raid-glyphs" />
+          </g>
+        </svg>
+      </div>
+    </div>
   );
 }
