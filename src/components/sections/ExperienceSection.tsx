@@ -12,7 +12,7 @@ export function ExperienceSection({ experiences }: Readonly<ExperienceSectionPro
   return (
     <section
       id="experience"
-      className="relative border-t border-border/60 bg-background"
+      className="relative border-t border-border/60"
       aria-labelledby="experience-heading"
     >
       <div className="absolute inset-x-0 top-0 h-px bg-border/70" />

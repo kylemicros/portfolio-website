@@ -1,10 +1,9 @@
 import Link from "next/link";
-import Image from "next/image";
 
-import Logo from "@/assets/img/marlowe-logo.png";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
+import { Emblem } from "./Emblem";
 import { SocialLinks } from "./SocialLinks";
 import { Separator } from "./ui/separator";
 
@@ -15,7 +14,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
   return (
     <footer
       className={cn(
-        "relative border-t border-border/60 bg-background",
+        "relative border-t border-border/60",
         className
       )}
     >
@@ -26,13 +25,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
           {/* Brand Column */}
           <div className="space-y-6 lg:col-span-2">
             <div className="flex items-center gap-3">
-              <Image
-                src={Logo}
-                alt={name}
-                width={56}
-                height={56}
-                className="h-11 w-auto shrink-0"
-              />
+              <Emblem size={44} />
               <div className="leading-tight">
                 <p className="text-base font-semibold text-foreground">{name}</p>
                 <p className="text-sm text-muted-foreground">{role}</p>
@@ -86,7 +79,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
                   href={contact.calendarUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-primary transition-colors hover:text-primary/80"
+                  className="text-sm text-blade-hot transition-colors hover:text-foreground"
                 >
                   Schedule a call →
                 </Link>

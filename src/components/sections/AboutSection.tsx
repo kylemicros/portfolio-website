@@ -10,7 +10,7 @@ interface AboutSectionProps {
 
 export function AboutSection({ about, skills }: Readonly<AboutSectionProps>) {
   return (
-    <section id="about" className="relative border-t border-border/60 bg-background" aria-labelledby="about-heading">
+    <section id="about" className="relative border-t border-border/60" aria-labelledby="about-heading">
       <div className="absolute inset-x-0 top-0 h-px bg-border/70" />
       <div className="mx-auto grid w-full max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
         <div className="space-y-8">

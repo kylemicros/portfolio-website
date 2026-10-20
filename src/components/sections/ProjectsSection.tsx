@@ -14,7 +14,7 @@ interface ProjectsSectionProps {
 
 export function ProjectsSection({ projects, githubUrl = siteConfig.githubProfile }: Readonly<ProjectsSectionProps>) {
   return (
-    <section id="projects" className="relative border-t border-border/60 bg-background" aria-labelledby="projects-heading">
+    <section id="projects" className="relative border-t border-border/60" aria-labelledby="projects-heading">
       <div className="absolute inset-x-0 top-0 h-px bg-border/70" />
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-12 px-6 py-20">
         <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">

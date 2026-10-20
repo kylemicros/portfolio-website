@@ -17,7 +17,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
   return (
     <section
       id="contact"
-      className="relative border-t border-border/60 bg-linear-to-b from-background via-background/60 to-primary/5"
+      className="relative border-t border-border/60 bg-linear-to-b from-transparent to-primary/5"
       aria-labelledby="contact-heading"
     >
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-6 py-20 text-center">
