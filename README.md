@@ -11,6 +11,7 @@ You can view the live version at [https://marlowe-portfolio.vercel.app/](https:/
 - [Next.js](https://nextjs.org/) 16 (App Router) with React 19
 - TypeScript 5 (strict mode)
 - Tailwind CSS 4 and [shadcn/ui](https://ui.shadcn.com/) components
+- [GSAP](https://gsap.com/) for the motion
 - [Lucide](https://lucide.dev/) icons
 - Deployed on [Vercel](https://vercel.com/)
 

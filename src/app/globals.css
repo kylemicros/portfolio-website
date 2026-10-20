@@ -9,6 +9,9 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-noto-serif-jp);
+  /* `max-w-measure`: a readable line of about 75 characters at any text size. `65ch` runs to
+     about 90 in Geist, whose "0" (the `ch` unit) is wider than its average letter. */
+  --container-measure: 34em;
   --color-blade: var(--blade);
   --color-blade-hot: var(--blade-hot);
   --color-paper: var(--paper);
@@ -119,6 +122,27 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+/* The page's shared width: content up to 1440px, centred, with side gutters that widen with the
+   screen (24px, 32px from `sm`, 48px from `lg`, 64px from `2xl`). The gutter is a variable, so
+   anything placed against the content's edge can use it. */
+@utility site-width {
+  --gutter: 1.5rem;
+  width: 100%;
+  max-width: calc(90rem + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+
+  @variant sm {
+    --gutter: 2rem;
+  }
+  @variant lg {
+    --gutter: 3rem;
+  }
+  @variant 2xl {
+    --gutter: 4rem;
+  }
 }
 
 @layer base {

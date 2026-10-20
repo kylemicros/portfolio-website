@@ -12,12 +12,12 @@ interface AboutSectionProps {
 export function AboutSection({ about, skillGroups }: Readonly<AboutSectionProps>) {
   return (
     <section id="about" className="relative border-t border-border/60" aria-labelledby="about-heading">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-20">
+      <div className="site-width flex flex-col gap-10 py-20">
         <SectionHead number="01" label="Profile" headingId="about-heading" title={about.title} />
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:items-start">
           <div className="space-y-8">
-            <p className="text-pretty text-base leading-relaxed text-paper/90 sm:text-lg">
+            <p className="max-w-measure text-pretty text-base leading-relaxed text-paper/90 sm:text-lg">
               {about.description}
             </p>
 
@@ -29,7 +29,7 @@ export function AboutSection({ about, skillGroups }: Readonly<AboutSectionProps>
                     <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-blade-hot">
                       {highlight.title}
                     </h3>
-                    <p className="text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    <p className="max-w-measure text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
                       {highlight.description}
                     </p>
                   </div>

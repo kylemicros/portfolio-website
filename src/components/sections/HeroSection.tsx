@@ -53,8 +53,8 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_35%_28%_at_12%_78%,color-mix(in_oklab,var(--blade)_12%,transparent),transparent_70%)]" />
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-6 pb-20 pt-12 sm:pt-14 lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-0 lg:pt-18 xl:pt-20">
-        <KanjiNightRaid className="pointer-events-none absolute right-6 top-12 hidden min-[480px]:block sm:top-14 lg:top-18 xl:top-20" />
+      <div className="site-width relative grid gap-12 pb-20 pt-12 sm:pt-14 lg:grid-cols-[minmax(0,300px)_minmax(0,1fr)] lg:gap-0 lg:pt-18 xl:pt-20">
+        <KanjiNightRaid className="pointer-events-none absolute right-(--gutter) top-12 hidden min-[480px]:block sm:top-14 lg:top-18 xl:top-20" />
 
         {/* The text column comes first, so phones read it before the card. From `lg` the card
             moves to the left; the column's clip keeps the slash from reaching across it. */}
@@ -73,10 +73,10 @@ export function HeroSection() {
               >
                 {renderTitle(hero.title, hero.titleEmphasis)}
               </h1>
-              <p className="max-w-2xl text-pretty text-lg text-paper/90 sm:text-xl">
+              <p className="max-w-measure text-pretty text-lg text-paper/90 sm:text-xl">
                 {hero.subtitle}
               </p>
-              <p className="max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+              <p className="max-w-measure text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
                 {hero.description}
               </p>
             </div>
@@ -84,10 +84,18 @@ export function HeroSection() {
             <div data-hero-actions="" className="flex flex-wrap items-center gap-4">
               {hero.actions.map((action) => {
                 const primary = (action.variant ?? "default") === "default";
+                // Links to other sites (the booking page) open in a new tab, as in the Brief.
+                const external = /^https?:\/\//.test(action.href);
                 return (
                   // The box is skewed and its label skewed back, so the label stays upright.
                   // The link itself is not transformed, so the entrance can move it.
-                  <Link key={action.label} href={action.href} className="group inline-block outline-none">
+                  <Link
+                    key={action.label}
+                    href={action.href}
+                    className="group inline-block outline-none"
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
+                  >
                     <span
                       className={cn(
                         "block -skew-x-12 border px-5 py-3 transition-colors group-focus-visible:ring-[3px] group-focus-visible:ring-ring",
@@ -111,7 +119,7 @@ export function HeroSection() {
           <div className="relative">
             <div className="overflow-hidden border border-border">
               <Image
-                src={hero.portrait ?? "/assets/img/me.jpg"}
+                src={hero.portrait}
                 alt={hero.portraitAlt}
                 width={640}
                 height={800}

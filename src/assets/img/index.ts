@@ -1,5 +1,3 @@
-import MultiTenantArchitectureImage from "@/assets/img/multi-tenant-architecture.png";
-import SoftwareImage from "@/assets/img/saas.jpg";
 import SevenElevenImage from "@/assets/img/7-eleven-logo.png";
 import TheLawSocietyImage from "@/assets/img/the-law-society-logo.webp";
 import ConexusImage from '@/assets/img/conexus.png';
@@ -13,8 +11,6 @@ import ApollotechLogo from '@/assets/img/companies/apollotech.jpeg';
 import ApoloniaPosImage from '@/assets/img/apolonia-pos.png';
 
 export {
-  MultiTenantArchitectureImage,
-  SoftwareImage,
   SevenElevenImage,
   TheLawSocietyImage,
   ConexusImage,

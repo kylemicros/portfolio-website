@@ -16,7 +16,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
 
   return (
     <footer className={cn("relative border-t border-border/60", className)}>
-      <div className="mx-auto grid w-full max-w-6xl items-center justify-items-center gap-6 px-6 py-8 text-sm text-muted-foreground lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:justify-items-stretch">
+      <div className="site-width grid items-center justify-items-center gap-6 py-8 text-sm text-muted-foreground lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:justify-items-stretch">
         <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 lg:justify-start">
           {navLinks.map((link) => (
             <Link
@@ -44,7 +44,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
             </Link>
             <span aria-hidden="true" className="text-border/60">·</span>
             <Link
-              href={siteConfig.githubProfile ?? "#"}
+              href={siteConfig.sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
               className={LINK}
