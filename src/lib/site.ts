@@ -2,7 +2,18 @@ import type { NavbarLink } from "@/components/Navbar";
 import type { ProjectCardProps } from "@/components/ProjectCard";
 import type { SocialLink } from "@/components/SocialLinks";
 import { dynamicIconImports } from "lucide-react/dynamic";
-import { SevenElevenImage, TheLawSocietyImage, GlowEditImage, ClinicEzImage, ConexusImage, MeImage } from "@/assets/img";
+import {
+  SevenElevenImage,
+  TheLawSocietyImage,
+  GlowEditImage,
+  ClinicEzImage,
+  ConexusImage,
+  MeImage,
+  RubatoLifeLogo,
+  NextStepLogo,
+  LogicallLogo,
+  ApollotechLogo,
+} from "@/assets/img";
 import { StaticImageData } from "next/image";
 
 export interface HeroAction {
@@ -26,6 +37,8 @@ export interface HeroContent {
   description: string;
   portrait: string | StaticImageData;
   portraitAlt: string;
+  /** The short line under the fields of the hero's ID card. */
+  portraitCaption: string;
   actions: HeroAction[];
   highlights: HeroHighlight[];
 }
@@ -44,6 +57,8 @@ export interface AboutContent {
 
 export interface ExperienceItem {
   company: string;
+  /** The company's logo, shown on a white tile. Companies without one get a seal instead. */
+  logo?: StaticImageData;
   role: string;
   start: string;
   end: string;
@@ -51,6 +66,50 @@ export interface ExperienceItem {
   achievements: string[];
   technologies: string[];
   url?: string;
+}
+
+// The skills, in the order the owner listed them. The toolkit groups them, and its groups can
+// only name skills from this list.
+const skills = [
+  "Next.js",
+  "React",
+  "React Native",
+  "NestJS",
+  "C#",
+  "ASP.NET Core",
+  "Expo",
+  "Node.js",
+  "Express",
+  "Prisma",
+  "TypeScript",
+  "Java",
+  "Spring Boot",
+  "Quasar",
+  "Vue",
+  "Tailwind CSS",
+  "Radix UI",
+  "ShadCN UI",
+  "TanStack Router",
+  "PostgreSQL",
+  "Neon",
+  "Docker",
+  "Kubernetes",
+  "Azure",
+  "AWS",
+  "GitHub Actions",
+  "Playwright",
+  "Puppeteer",
+  "Vitest",
+  "CI/CD",
+  "Figma",
+] as const;
+
+export type Skill = (typeof skills)[number];
+
+export interface SkillGroup {
+  label: string;
+  /** Every skill appears in exactly one group. */
+  skills: Skill[];
 }
 
 export interface ContactInfo {
@@ -70,7 +129,8 @@ export interface SiteConfig {
   hero: HeroContent;
   about: AboutContent;
   projects: ProjectCardProps[];
-  skills: string[];
+  skills: Skill[];
+  skillGroups: SkillGroup[];
   experiences: ExperienceItem[];
   contact: ContactInfo;
   githubProfile?: string;
@@ -82,10 +142,10 @@ export const siteConfig: SiteConfig = {
   location: "Cagayan de Oro, PH",
   navLinks: [
     { label: "Home", href: "#home" },
-    { label: "About", href: "#about" },
-    { label: "Projects", href: "#projects" },
-    { label: "Experience", href: "#experience" },
-    { label: "Contact", href: "#contact" },
+    { label: "Profile", href: "#about" },
+    { label: "Cases", href: "#projects" },
+    { label: "Record", href: "#experience" },
+    { label: "Brief", href: "#contact" },
   ],
   socialLinks: [
     { icon: "github", url: "https://github.com/kylemicros" },
@@ -101,6 +161,7 @@ export const siteConfig: SiteConfig = {
       "From multi-tenant suites to startup MVPs, I work with founders and cross-functional teams to shape resilient architectures, streamline delivery, and ship features users trust.",
     portrait: MeImage,
     portraitAlt: "Portrait of Kyle Marlowe Moreno",
+    portraitCaption: "Focused on dependable healthcare, fintech, and platform experiences.",
     actions: [
       {
         label: "View selected work",
@@ -126,7 +187,7 @@ export const siteConfig: SiteConfig = {
       {
         title: "Multi-tenant platform leadership",
         description:
-          "Guiding the rebuild of a healthcare management suite at NextStep, covering architecture decisions, shared component libraries, and automated QA across web and mobile.",
+          "Guiding the rebuild of a healthcare management suite, covering architecture decisions, shared component libraries, and automated QA across web and mobile.",
       },
       {
         title: "Delivery enablement",
@@ -186,42 +247,22 @@ export const siteConfig: SiteConfig = {
       liveDemoLink: "https://tryconexus.com/",
     }
   ],
-  skills: [
-    "Next.js",
-    "React",
-    "React Native",
-    "NestJS",
-    "C#",
-    "ASP.NET Core",
-    "Expo",
-    "Node.js",
-    "Express",
-    "Prisma",
-    "TypeScript",
-    "Java",
-    "Spring Boot",
-    "Quasar",
-    "Vue",
-    "Tailwind CSS",
-    "Radix UI",
-    "ShadCN UI",
-    "TanStack Router",
-    "PostgreSQL",
-    "Neon",
-    "Docker",
-    "Kubernetes",
-    "Azure",
-    "AWS",
-    "GitHub Actions",
-    "Playwright",
-    "Puppeteer",
-    "Vitest",
-    "CI/CD",
-    "Figma",
+  skills: [...skills],
+  skillGroups: [
+    {
+      label: "Frontend",
+      skills: ["Next.js", "React", "Vue", "Quasar", "TypeScript", "Tailwind CSS", "Radix UI", "ShadCN UI", "TanStack Router"],
+    },
+    { label: "Mobile", skills: ["React Native", "Expo"] },
+    { label: "Backend", skills: ["NestJS", "ASP.NET Core", "C#", "Spring Boot", "Java", "Node.js", "Express"] },
+    { label: "Data", skills: ["PostgreSQL", "Prisma", "Neon"] },
+    { label: "Infra", skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "CI/CD"] },
+    { label: "Testing and tools", skills: ["Vitest", "Playwright", "Puppeteer", "Figma"] },
   ],
   experiences: [
     {
       company: "Rubato Life",
+      logo: RubatoLifeLogo,
       role: "Full Stack Developer",
       start: "December 2025",
       end: "Present",
@@ -258,6 +299,7 @@ export const siteConfig: SiteConfig = {
     },
     {
       company: "NextStep Software Solutions, Inc.",
+      logo: NextStepLogo,
       role: "Full Stack Developer",
       start: "June 2025",
       end: "December 2025",
@@ -273,6 +315,7 @@ export const siteConfig: SiteConfig = {
     },
     {
       company: "Logicall",
+      logo: LogicallLogo,
       role: "DevOps Engineer",
       start: "March 2025",
       end: "June 2025",
@@ -287,6 +330,7 @@ export const siteConfig: SiteConfig = {
     },
     {
       company: "Apollotech Software Corporation",
+      logo: ApollotechLogo,
       role: "Software Developer",
       start: "July 2024",
       end: "June 2025",

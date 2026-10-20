@@ -13,6 +13,11 @@ interface HeroMotionProps {
   children: ReactNode;
   /** The kanji accent to brush in. It sits outside this wrapper, so it is looked up in the page. */
   kanjiSelector?: string;
+  /**
+   * The stamp that lands once the slash has settled. It sits outside this wrapper, and its markup
+   * keeps it hidden while motion is allowed, so this entrance is what shows it.
+   */
+  stampSelector?: string;
   className?: string;
 }
 
@@ -23,6 +28,8 @@ const SLASH_BOW = 0.12;
 // Seconds into the hero timeline. The slash's own timeline is about 1.4 s long.
 const SLASH_AT = 0.08;
 const SWING_END = SLASH_AT + 0.43;
+// The slash has settled by about 1.45 s; the stamp lands just after.
+const STAMP_AT = 1.5;
 const SMALL_SCREEN = 640;
 
 // The kanji aura's values come from the approved demo, in absolute pixels at every kanji size,
@@ -109,12 +116,14 @@ function startKanjiAura(kanji: Element): () => void {
 
 /**
  * Plays the hero entrance over the text column: the kanji brushes in, the heading lines are
- * cut across in red, one big slash splits the column and settles, then the buttons settle.
+ * cut across in red, one big slash splits the column and settles, then the buttons settle and the
+ * stamp lands on the ID card.
  * The text is fully visible before, during and after; the motion only plays over it.
  * Afterwards the kanji floats, its glow breathes and it glitches now and then.
- * With reduced motion only the scar and a still glow are shown. Without JavaScript nothing changes.
+ * With reduced motion only the scar, a still glow and the stamp (in place, by its own CSS) are shown.
+ * Without JavaScript nothing changes.
  */
-export function HeroMotion({ children, kanjiSelector, className }: Readonly<HeroMotionProps>) {
+export function HeroMotion({ children, kanjiSelector, stampSelector, className }: Readonly<HeroMotionProps>) {
   const rootRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
@@ -204,7 +213,19 @@ export function HeroMotion({ children, kanjiSelector, className }: Readonly<Hero
 
         tl.call(() => bars.replaceChildren());
 
-        // 5. Once the opening has finished, the kanji keeps a quiet idle motion.
+        // 5. The stamp comes down onto the card: large and turned a little further, then flat at
+        // its resting angle. GSAP takes over the stamp's CSS rotation, so it ends at the same -12°.
+        const stamp = stampSelector ? document.querySelector(stampSelector) : null;
+        if (stamp) {
+          tl.fromTo(
+            stamp,
+            { opacity: 0, scale: 1.6, rotation: -18 },
+            { opacity: 1, scale: 1, rotation: -12, duration: 0.22, ease: "power4.in" },
+            STAMP_AT
+          );
+        }
+
+        // 6. Once the opening has finished, the kanji keeps a quiet idle motion.
         let stopAura: (() => void) | undefined;
         if (kanji) tl.call(() => (stopAura = startKanjiAura(kanji)));
 
@@ -232,7 +253,7 @@ export function HeroMotion({ children, kanjiSelector, className }: Readonly<Hero
         mm?.revert();
       };
     },
-    { scope: rootRef, dependencies: [kanjiSelector] }
+    { scope: rootRef, dependencies: [kanjiSelector, stampSelector] }
   );
 
   return (
