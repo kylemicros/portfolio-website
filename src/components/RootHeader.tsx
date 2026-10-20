@@ -3,14 +3,13 @@
 import type { DetailedHTMLProps, HTMLAttributes } from "react";
 import { useEffect, useState } from "react";
 
-import Image from "next/image";
 import Link from "next/link";
 import { MenuIcon } from "lucide-react";
 
-import Logo from "@/assets/img/marlowe-logo.png";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
+import { Emblem } from "./Emblem";
 import { Navbar } from "./Navbar";
 import { SocialLinks } from "./SocialLinks";
 import { Button } from "./ui/button";
@@ -48,14 +47,9 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-4">
         <Link
           href="#home"
-          className="group flex items-center gap-3 text-foreground transition-colors hover:text-primary"
+          className="group flex items-center gap-3 text-foreground transition-colors hover:text-blade-hot"
         >
-          <Image
-            src={Logo}
-            alt={name}
-            className="h-8 w-auto shrink-0"
-            priority
-          />
+          <Emblem size={32} animate />
           <div className="leading-tight">
             <p className="text-[11px] font-semibold uppercase tracking-[0.4em] text-muted-foreground">
               Portfolio
