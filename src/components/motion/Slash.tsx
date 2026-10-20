@@ -13,6 +13,14 @@ export interface SlashTimelineOptions {
   splitTarget?: HTMLElement;
   /** Small screens: no shake and fewer droplets. */
   small: boolean;
+  /** The soft white flash at impact. Defaults to on; only the hero keeps it. */
+  flash?: boolean;
+  /** The small shake of the parent at impact. Defaults to on, except on small screens. */
+  shake?: boolean;
+  /** How many ink droplets are thrown. Defaults to 26, or 12 on small screens. */
+  droplets?: number;
+  /** Leave the faint scar once the cut has played. Defaults to on. */
+  keepScar?: boolean;
   /**
    * Called at the moment of impact (`SLASH_IMPACT` seconds into the timeline) with the clone of
    * `splitTarget`, so callers can animate the clone's copy of an element with the original.
@@ -36,6 +44,8 @@ interface SlashProps {
   bow: number;
   /** Extend the overlay from the parent's left edge to the left edge of the page. */
   bleedLeft?: boolean;
+  /** Multiplies the blade's thickness, for smaller cuts. Defaults to 1. */
+  thickness?: number;
   className?: string;
   slashRef?: Ref<SlashHandle>;
 }
@@ -74,7 +84,7 @@ const GAP = 10;
  * Nothing is drawn until script runs, so without JavaScript there is no scar.
  * The parent drives it through `slashRef`; geometry follows the parent's size.
  */
-export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }: Readonly<SlashProps>) {
+export function Slash({ from, to, bow, bleedLeft = false, thickness = 1, className, slashRef }: Readonly<SlashProps>) {
   // Plain numbers, so callers may pass inline object literals without re-running the layout.
   const { x: fromX, y: fromY } = from;
   const { x: toX, y: toY } = to;
@@ -119,10 +129,11 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
     wrapper.style.display = "block";
     svg.setAttribute("viewBox", `${-bleed} 0 ${width + bleed} ${height}`);
 
-    const g = computeSlash(
+    const curve = computeSlash(
       { width, height },
       { from: { x: fromX, y: fromY }, to: { x: toX, y: toY }, bow, scaleWidth: window.innerWidth }
     );
+    const g = { ...curve, scale: curve.scale * thickness };
     const k = g.scale;
     const [trail2, trail1, glow, edge, core, scar] = paths;
     trail2?.setAttribute("d", crescentPath(g, TRAIL_2.width * k, TRAIL_2.shift * k));
@@ -147,7 +158,7 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
     flash.style.background = `radial-gradient(circle at ${hit.x + bleed}px ${hit.y}px, rgb(255 255 255) 0, rgb(255 255 255 / 0) ${Math.round(Math.min(width, height) * 0.6)}px)`;
 
     return { g, bleed, length };
-  }, [fromX, fromY, toX, toY, bow, bleedLeft]);
+  }, [fromX, fromY, toX, toY, bow, bleedLeft, thickness]);
 
   // Recompute on resize (debounced), so a scar left on the page follows the new size.
   useEffect(() => {
@@ -185,7 +196,7 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
         gsap.set(scarRef.current, { opacity: SCAR_OPACITY });
       },
 
-      timeline({ splitTarget, small, onClone }) {
+      timeline({ splitTarget, small, onClone, flash: withFlash = true, shake = !small, droplets, keepScar = true }) {
         const geo = layout();
         const wrapper = wrapperRef.current;
         const parent = wrapper?.parentElement;
@@ -237,9 +248,11 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
             .to(maskPath, { strokeDashoffset: 0, duration: 0.15, ease: "expo.out" }, SWING_AT);
 
           // 3. Impact: one soft flash, and a small shake on larger screens.
-          tl.to(flash, { opacity: 0.32, duration: 0.04, ease: "none" }, HIT)
-            .to(flash, { opacity: 0, duration: 0.22, ease: "power2.out" }, HIT + 0.04);
-          if (!small) {
+          if (withFlash) {
+            tl.to(flash, { opacity: 0.32, duration: 0.04, ease: "none" }, HIT)
+              .to(flash, { opacity: 0, duration: 0.22, ease: "power2.out" }, HIT + 0.04);
+          }
+          if (shake) {
             tl.to(
               parent,
               {
@@ -330,10 +343,10 @@ export function Slash({ from, to, bow, bleedLeft = false, className, slashRef }:
             .to(glow, { opacity: 0, duration: 0.55, ease: "power2.out" }, HIT + 0.05)
             .to([core, edge], { opacity: 0, duration: 0.7, ease: "power2.in" }, HIT + 0.15)
             .to(scar, { opacity: 0.75, duration: 0.2 }, HIT + 0.3)
-            .to(scar, { opacity: SCAR_OPACITY, duration: 0.5, ease: "power1.out" }, HIT + 0.5);
+            .to(scar, { opacity: keepScar ? SCAR_OPACITY : 0, duration: 0.5, ease: "power1.out" }, HIT + 0.5);
 
           // 6. Ink droplets thrown along the swing, removed once they have faded.
-          const count = small ? 12 : 26;
+          const count = droplets ?? (small ? 12 : 26);
           const angle = (Math.atan2(g.dir.y, g.dir.x) * 180) / Math.PI;
           const drops: HTMLElement[] = [];
           for (let i = 0; i < count; i++) {

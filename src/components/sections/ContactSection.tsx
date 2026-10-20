@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { DynamicIcon, dynamicIconImports } from "lucide-react/dynamic";
 
+import type { SectionCut } from "@/components/motion/SectionMotion";
+import { SectionMotion } from "@/components/motion/SectionMotion";
 import type { ContactInfo } from "@/lib/site";
 import { siteConfig } from "@/lib/site";
 
@@ -8,6 +10,9 @@ import { SocialLinks } from "../SocialLinks";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+
+// The closing cut: wider and lower than the other sections' cuts, across the whole band.
+const CLOSING_CUT: SectionCut = { from: { x: -0.06, y: 0.92 }, to: { x: 1.06, y: 0.38 }, bow: 0.22, thickness: 0.8 };
 
 interface ContactSectionProps {
   contact: ContactInfo;
@@ -20,20 +25,20 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
       className="relative border-t border-border/60 bg-linear-to-b from-transparent to-primary/5"
       aria-labelledby="contact-heading"
     >
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-6 py-20 text-center">
+      <SectionMotion cut={CLOSING_CUT} cutClassName="h-32 sm:h-40" className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-6 py-20 text-center">
         <div className="space-y-4">
-          <Badge variant="outline" className="mx-auto rounded-full px-3 py-1 text-xs uppercase tracking-[0.4em] text-muted-foreground">
+          <Badge data-reveal="item" variant="outline" className="mx-auto rounded-full px-3 py-1 font-brush text-sm font-normal uppercase tracking-[0.4em] text-muted-foreground">
             Contact
           </Badge>
-          <h2 id="contact-heading" className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
+          <h2 id="contact-heading" data-reveal="title" className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
             Let’s shape your next product milestone
           </h2>
-          <p className="mx-auto max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
+          <p data-reveal="item" className="mx-auto max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg">
             I collaborate with teams who value strong design partnerships, clear communication, and a culture of experimentation. Tell me about your goals and we’ll explore how to reach them together.
           </p>
         </div>
 
-        <Card className="mx-auto max-w-2xl border border-border/60 bg-card/75 shadow-lg backdrop-blur">
+        <Card data-reveal="item" className="mx-auto max-w-2xl border border-border/60 bg-card/75 shadow-lg backdrop-blur">
           <CardHeader className="gap-3">
             <CardTitle className="text-2xl font-semibold">Ready when you are</CardTitle>
             <CardDescription className="text-sm text-muted-foreground">
@@ -70,7 +75,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </SectionMotion>
     </section>
   );
 }
