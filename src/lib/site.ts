@@ -459,5 +459,13 @@ export const siteConfig: SiteConfig = {
       licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
       modified: true,
     },
+    {
+      work: "Cursor icons",
+      author: "Lorc and sbed (game-icons.net)",
+      authorUrl: "https://game-icons.net/",
+      license: "CC BY 3.0",
+      licenseUrl: "https://creativecommons.org/licenses/by/3.0/",
+      modified: true,
+    },
   ],
 };

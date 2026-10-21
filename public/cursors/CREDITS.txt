@@ -1,0 +1,20 @@
+Cursor icons
+
+arrow.svg, arrow-2x.svg, pointer.svg and pointer-2x.svg are made from
+"Thrown knife" by Lorc:
+https://game-icons.net/1x1/lorc/thrown-knife.html
+
+grab.svg and grab-2x.svg are made from "Hand" by sbed:
+https://game-icons.net/1x1/sbed/hand.html
+
+grabbing.svg and grabbing-2x.svg are made from "Punch" by Lorc:
+https://game-icons.net/1x1/lorc/punch.html
+
+Licence: Creative Commons Attribution 3.0 Unported (CC BY 3.0)
+https://creativecommons.org/licenses/by/3.0/
+
+Modified: the knife is turned so its tip points up and left; all three are
+resized to 32px, filled in the site's paper white (the pointer in its red),
+given a dark outline, and their path coordinates are rounded.
+
+text.svg and text-2x.svg (the I-beam) are drawn for this site.
