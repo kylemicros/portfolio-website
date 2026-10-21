@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Serif_JP } from "next/font/google";
 
+import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { RootFooter } from "@/components/RootFooter";
 import { RootHeader } from "@/components/RootHeader";
 import { NightSky } from "@/components/sky/NightSky";
@@ -64,6 +65,7 @@ export default function RootLayout({
     >
       <body className="bg-background text-foreground antialiased">
         <NightSky />
+        <SmoothScroll />
         <div className="flex min-h-screen flex-col">
           <RootHeader />
           {children}

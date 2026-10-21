@@ -12,6 +12,7 @@ You can view the live version at [https://marlowe-portfolio.vercel.app/](https:/
 - TypeScript 5 (strict mode)
 - Tailwind CSS 4 and [shadcn/ui](https://ui.shadcn.com/) components
 - [GSAP](https://gsap.com/) for the motion
+- [Lenis](https://lenis.dev/) for smooth wheel scrolling
 - [Lucide](https://lucide.dev/) icons
 - Deployed on [Vercel](https://vercel.com/)
 

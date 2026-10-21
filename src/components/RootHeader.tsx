@@ -104,8 +104,10 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
                       setOpen(false);
                       if (!element) return;
                       e.preventDefault();
+                      // The page's own scroll-behavior applies: smooth, unless the visitor asked for
+                      // reduced motion.
                       setTimeout(() => {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        element.scrollIntoView({ block: 'start' });
                       }, 300);
                     }}
                   >
