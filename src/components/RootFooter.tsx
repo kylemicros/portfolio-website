@@ -52,17 +52,22 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
               View source
             </Link>
           </div>
+          {/* The nowrap spans keep the author and the "licence, modified" tail whole, so a credit only wraps between them. */}
           {artCredits.map((credit) => (
             <p key={credit.work} className="text-xs">
               {credit.work} by{" "}
-              <Link href={credit.authorUrl} target="_blank" rel="noopener noreferrer" className={cn("underline underline-offset-2", LINK)}>
-                {credit.author}
-              </Link>
-              ,{" "}
-              <Link href={credit.licenseUrl} target="_blank" rel="noopener noreferrer" className={cn("underline underline-offset-2", LINK)}>
-                {credit.license}
-              </Link>
-              {credit.modified && ", modified"}
+              <span className="whitespace-nowrap">
+                <Link href={credit.authorUrl} target="_blank" rel="noopener noreferrer" className={cn("underline underline-offset-2", LINK)}>
+                  {credit.author}
+                </Link>
+                ,
+              </span>{" "}
+              <span className="whitespace-nowrap">
+                <Link href={credit.licenseUrl} target="_blank" rel="noopener noreferrer" className={cn("underline underline-offset-2", LINK)}>
+                  {credit.license}
+                </Link>
+                {credit.modified && ", modified"}
+              </span>
             </p>
           ))}
         </div>
