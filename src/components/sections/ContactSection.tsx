@@ -37,7 +37,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
   fields.push(["Base", contact.location]);
 
   return (
-    <section id="contact" className="relative border-t border-border/60" aria-labelledby="contact-heading">
+    <section id="contact" className="relative" aria-labelledby="contact-heading">
       <div className="site-width flex flex-col gap-10 py-20">
         <SectionHead
           number="04"

@@ -21,7 +21,7 @@ export function ProjectsSection({ projects, githubUrl = siteConfig.githubProfile
   }));
 
   return (
-    <section id="projects" className="relative border-t border-border/60" aria-labelledby="projects-heading">
+    <section id="projects" className="relative" aria-labelledby="projects-heading">
       <div className="site-width flex flex-col gap-10 py-20">
         <SectionHead
           number="02"
