@@ -145,6 +145,18 @@ export interface SectionIntro {
   intro?: string;
 }
 
+/** Art by someone else, credited in the footer as "<work> by <author>, <license>[, modified]". */
+export interface ArtCredit {
+  /** What the art is, such as "Clouds". */
+  work: string;
+  author: string;
+  authorUrl: string;
+  license: string;
+  licenseUrl: string;
+  /** The art was changed from the original (tinted, cropped, resized). */
+  modified?: boolean;
+}
+
 export interface SiteConfig {
   /** The live site's address, which makes the share image's URL absolute. */
   url: string;
@@ -165,6 +177,8 @@ export interface SiteConfig {
   githubProfile?: string;
   /** This site's source code, linked as "View source". */
   sourceUrl: string;
+  /** Art by others used on the site, such as the night sky's clouds. */
+  artCredits: ArtCredit[];
 }
 
 export const siteConfig: SiteConfig = {
@@ -436,4 +450,14 @@ export const siteConfig: SiteConfig = {
   },
   githubProfile: "https://github.com/kylemicros",
   sourceUrl: "https://github.com/kylemicros/portfolio-website",
+  artCredits: [
+    {
+      work: "Clouds",
+      author: "GOBI Studio",
+      authorUrl: "https://gobistudio.itch.io/free-clouds-tiles-textures",
+      license: "CC BY 4.0",
+      licenseUrl: "https://creativecommons.org/licenses/by/4.0/",
+      modified: true,
+    },
+  ],
 };

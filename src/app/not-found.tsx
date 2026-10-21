@@ -11,7 +11,7 @@ export default function NotFound() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_45%_35%_at_50%_45%,color-mix(in_oklab,var(--blade)_16%,transparent),transparent_70%)]"
       />
-      <div className="flex w-full max-w-2xl flex-col items-center gap-6 pt-10">
+      <div className="sky-shade flex w-full max-w-2xl flex-col items-center gap-6 pt-10">
         <div className="relative">
           <h1 className="flex flex-col items-center gap-4 font-black tracking-tight">
             <span className="text-7xl text-blade-hot sm:text-8xl">404</span>

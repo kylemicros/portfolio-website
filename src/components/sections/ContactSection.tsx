@@ -47,7 +47,7 @@ export function ContactSection({ contact }: Readonly<ContactSectionProps>) {
           intro={contact.intro}
         />
 
-        <BriefMotion className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
+        <BriefMotion className="sky-shade grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
           <div className="space-y-6">
             {contact.note && (
               <p data-brief-line="" className="max-w-measure text-pretty text-base leading-relaxed text-paper/90 sm:text-lg">

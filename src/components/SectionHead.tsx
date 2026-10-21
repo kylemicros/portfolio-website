@@ -20,9 +20,9 @@ interface SectionHeadProps {
  */
 export function SectionHead({ number, label, headingId, title, intro, className }: Readonly<SectionHeadProps>) {
   return (
-    <div className={cn("space-y-5", className)}>
+    <div className={cn("sky-shade space-y-5", className)}>
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
-        <span className="font-mono text-sm text-blade-hot">{number}</span>
+        <span className="font-mono text-sm text-blade-label">{number}</span>
         <h2 id={headingId} className="text-3xl font-black tracking-tight sm:text-4xl">
           {label}
         </h2>

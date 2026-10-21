@@ -16,7 +16,7 @@ export function AboutSection({ about, skillGroups }: Readonly<AboutSectionProps>
         <SectionHead number="01" label="Profile" headingId="about-heading" title={about.title} />
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:items-start">
-          <div className="space-y-8">
+          <div className="sky-shade space-y-8">
             <p className="max-w-measure text-pretty text-base leading-relaxed text-paper/90 sm:text-lg">
               {about.description}
             </p>
@@ -26,7 +26,7 @@ export function AboutSection({ about, skillGroups }: Readonly<AboutSectionProps>
                 of={about.highlights}
                 render={(highlight) => (
                   <div key={highlight.title} className="space-y-1.5">
-                    <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-blade-hot">
+                    <h3 className="font-sans text-xs font-semibold uppercase tracking-[0.15em] text-blade-label">
                       {highlight.title}
                     </h3>
                     <p className="max-w-measure text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -49,7 +49,8 @@ export function AboutSection({ about, skillGroups }: Readonly<AboutSectionProps>
             </dl>
           </div>
 
-          <Toolkit groups={skillGroups} />
+          {/* The toolkit has its own frame, so it is shaded inside the frame only. */}
+          <Toolkit groups={skillGroups} className="bg-(--sky-shade)" />
         </div>
       </div>
     </section>

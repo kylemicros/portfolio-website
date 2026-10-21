@@ -1,0 +1,10 @@
+Cloud art
+
+clouds-1.webp, clouds-2.webp, clouds-3.webp and clouds-4.webp are made from
+"FREE White clouds textures" by GOBI Studio:
+https://gobistudio.itch.io/free-clouds-tiles-textures
+
+Licence: Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+
+Modified: cropped, faded at the bottom, tinted red and resized, then saved as WebP.

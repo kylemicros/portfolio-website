@@ -8,16 +8,16 @@ const LINK = "transition-colors hover:text-foreground focus-visible:outline-none
 
 /**
  * The slim closing line of every page: the section links, the END OF FILE stamp in the middle,
- * then the copyright, Back to top and View source. Stacked and centred on phones.
+ * then the copyright, Back to top, View source and the art credits. Stacked and centred on phones.
  */
 export function RootFooter({ className }: Readonly<{ className?: string }>) {
-  const { name, navLinks } = siteConfig;
+  const { name, navLinks, artCredits } = siteConfig;
   const currentYear = new Date().getFullYear();
 
   return (
     <footer className={cn("relative border-t border-border/60", className)}>
       <div className="site-width grid items-center justify-items-center gap-6 py-8 text-sm text-muted-foreground lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:justify-items-stretch">
-        <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 lg:justify-start">
+        <nav className="sky-shade flex flex-wrap justify-center gap-x-5 gap-y-2 lg:justify-start">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -33,7 +33,7 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
           END OF FILE
         </LandingStamp>
 
-        <div className="flex flex-col items-center gap-2 text-center lg:items-end lg:text-right">
+        <div className="sky-shade flex flex-col items-center gap-2 text-center lg:items-end lg:text-right">
           <p>
             © {currentYear} {name}. All rights reserved.
           </p>
@@ -52,6 +52,19 @@ export function RootFooter({ className }: Readonly<{ className?: string }>) {
               View source
             </Link>
           </div>
+          {artCredits.map((credit) => (
+            <p key={credit.work} className="text-xs">
+              {credit.work} by{" "}
+              <Link href={credit.authorUrl} target="_blank" rel="noopener noreferrer" className={cn("underline underline-offset-2", LINK)}>
+                {credit.author}
+              </Link>
+              ,{" "}
+              <Link href={credit.licenseUrl} target="_blank" rel="noopener noreferrer" className={cn("underline underline-offset-2", LINK)}>
+                {credit.license}
+              </Link>
+              {credit.modified && ", modified"}
+            </p>
+          ))}
         </div>
       </div>
     </footer>
