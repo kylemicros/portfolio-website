@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import type Lenis from "lenis";
 
 import { gsap, MOTION_OK, ScrollTrigger } from "@/lib/gsap";
+import { whenSplashEnds } from "@/lib/splash";
 
 // Only a mouse or trackpad gets the glide: touch screens keep their own scrolling.
 const FINE_POINTER = "(pointer: fine)";
@@ -16,7 +17,8 @@ const inDialog = (node: HTMLElement) => node.getAttribute("role") === "dialog";
  * Smooths wheel and trackpad scrolling with Lenis, driven by the GSAP ticker so ScrollTrigger
  * (the sky's clouds, the entrances) reads every frame of the glide. Everything else stays the
  * browser's own: touch, the keyboard, focus, the scrollbar and the jumps to a section (`#about`).
- * It only runs for a fine pointer with motion allowed, and starts once the page has loaded.
+ * It only runs for a fine pointer with motion allowed, and starts once the page has loaded and any
+ * opening splash has ended.
  * Renders nothing.
  */
 export function SmoothScroll() {
@@ -91,10 +93,14 @@ export function SmoothScroll() {
       if (motion.matches && fine.matches) void start(run);
     };
 
+    let stopWaiting = () => {};
+    // The opening splash holds the page still while it plays, so the glide starts after it.
     const begin = () => {
-      update();
-      motion.addEventListener("change", update);
-      fine.addEventListener("change", update);
+      stopWaiting = whenSplashEnds(() => {
+        update();
+        motion.addEventListener("change", update);
+        fine.addEventListener("change", update);
+      });
     };
 
     if (document.readyState === "complete") begin();
@@ -103,6 +109,7 @@ export function SmoothScroll() {
     return () => {
       run += 1;
       window.removeEventListener("load", begin);
+      stopWaiting();
       motion.removeEventListener("change", update);
       fine.removeEventListener("change", update);
       stop?.();

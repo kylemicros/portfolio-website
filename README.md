@@ -49,3 +49,5 @@ The site's content (profile, projects, experience and contact details) lives in 
 The clouds in the night sky come from "FREE White clouds textures" by [GOBI Studio](https://gobistudio.itch.io/free-clouds-tiles-textures), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). They are modified (cropped, tinted and resized) and live in `public/sky/`.
 
 The cursor icons come from [game-icons.net](https://game-icons.net/): "Thrown knife" by Lorc (the arrow and the pointer), "Punch" by Lorc (grabbing) and "Hand" by sbed (grab), licensed [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). They are modified (turned, resized, recoloured and outlined) and live in `public/cursors/`, which also holds the text cursor, drawn for this site.
+
+The Japanese quote on the opening screen is drawn from the glyph outlines of [Noto Serif JP](https://fonts.google.com/noto/specimen/Noto+Serif+JP), licensed under the [SIL Open Font License 1.1](https://openfontlicense.org/). The outlines live in `src/components/splash/`.

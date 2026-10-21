@@ -8,7 +8,9 @@ import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { RootFooter } from "@/components/RootFooter";
 import { RootHeader } from "@/components/RootHeader";
 import { NightSky } from "@/components/sky/NightSky";
+import { Splash } from "@/components/splash/Splash";
 import { siteConfig } from "@/lib/site";
+import { SPLASH_HEAD_SCRIPT } from "@/lib/splash";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,13 +60,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // The font variables sit on <html>, where Tailwind sets the page's `font-sans`.
+    // The font variables sit on <html>, where Tailwind sets the page's `font-sans`. The head script
+    // may mark <html> for the opening splash before React hydrates, so its attributes can differ.
     <html
       lang="en"
       data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJp.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Runs while the page is parsed, before the first paint: decides whether the splash plays. */}
+        <script dangerouslySetInnerHTML={{ __html: SPLASH_HEAD_SCRIPT }} />
+      </head>
       <body className="bg-background text-foreground antialiased">
+        {/* First in the page, so it covers the page from the first paint when it plays. */}
+        <Splash />
         <NightSky />
         <SmoothScroll />
         <div className="flex min-h-screen flex-col">

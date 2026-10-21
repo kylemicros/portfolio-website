@@ -4,33 +4,30 @@ import type { ReactNode } from "react";
 import { useRef } from "react";
 
 import { gsap, MOTION_OK, MOTION_REDUCED, SplitText, useGSAP } from "@/lib/gsap";
+import { whenSplashEnds } from "@/lib/splash";
 import { cn } from "@/lib/utils";
 
 import type { SlashHandle } from "./Slash";
-import { Slash, SLASH_IMPACT } from "./Slash";
+import { Slash } from "./Slash";
 
 interface HeroMotionProps {
   children: ReactNode;
   /** The kanji accent to brush in. It sits outside this wrapper, so it is looked up in the page. */
   kanjiSelector?: string;
   /**
-   * The stamp that lands once the slash has settled. It sits outside this wrapper, and its markup
+   * The stamp that lands once the heading's cuts have faded. It sits outside this wrapper, and its markup
    * keeps it hidden while motion is allowed, so this entrance is what shows it.
    */
   stampSelector?: string;
   className?: string;
 }
 
-// The cut runs from low left to high right across the text column.
+// The scar runs from low left to high right across the text column.
 const SLASH_FROM = { x: -0.05, y: 0.78 };
 const SLASH_TO = { x: 1.04, y: 0.22 };
 const SLASH_BOW = 0.12;
-// Seconds into the hero timeline. The slash's own timeline is about 1.4 s long.
-const SLASH_AT = 0.08;
-const SWING_END = SLASH_AT + 0.43;
-// The slash has settled by about 1.45 s; the stamp lands just after.
-const STAMP_AT = 1.5;
-const SMALL_SCREEN = 640;
+// Seconds into the hero timeline: the stamp lands once the heading's cuts have faded.
+const STAMP_AT = 0.5;
 
 // The kanji aura's values come from the approved demo, in absolute pixels at every kanji size,
 // so the bursts read as a glitch on the smaller real kanji too.
@@ -116,8 +113,8 @@ function startKanjiAura(kanji: Element): () => void {
 
 /**
  * Plays the hero entrance over the text column: the kanji brushes in, the heading lines are
- * cut across in red, one big slash splits the column and settles, then the buttons settle and the
- * stamp lands on the ID card.
+ * cut across in red, and the stamp lands on the ID card. The big slash itself belongs to the
+ * opening splash now; the hero only carries its scar.
  * The text is fully visible before, during and after; the motion only plays over it.
  * Afterwards the kanji floats, its glow breathes and it glitches now and then.
  * With reduced motion only the scar, a still glow and the stamp (in place, by its own CSS) are shown.
@@ -185,35 +182,12 @@ export function HeroMotion({ children, kanjiSelector, stampSelector, className }
           }
         }
 
-        // 3. The slash, bounded to this column. The column is split along the cut.
-        // 4. After the swing the buttons recoil a few pixels and settle. They stay opaque.
-        // The copy of the column made at impact gets the same settle, in step with the original.
-        const settle = { y: 0, duration: 0.4, ease: "power2.out", stagger: 0.05 };
-        tl.add(
-          slash.timeline({
-            splitTarget: content,
-            small: window.innerWidth < SMALL_SCREEN,
-            onClone: (clone) => {
-              const copies = clone.querySelectorAll("[data-hero-actions] > *");
-              if (copies.length === 0) return;
-              gsap.fromTo(
-                copies,
-                { y: 6 },
-                { ...settle, delay: SWING_END - (SLASH_AT + SLASH_IMPACT), immediateRender: false }
-              );
-            },
-          }),
-          SLASH_AT
-        );
-
-        const actions = content.querySelectorAll("[data-hero-actions] > *");
-        if (actions.length > 0) {
-          tl.fromTo(actions, { y: 6 }, { ...settle, immediateRender: false, clearProps: "transform" }, SWING_END);
-        }
+        // 3. The scar of the slash, in place. The buttons stay still.
+        slash.showScar();
 
         tl.call(() => bars.replaceChildren());
 
-        // 5. The stamp comes down onto the card: large and turned a little further, then flat at
+        // 4. The stamp comes down onto the card: large and turned a little further, then flat at
         // its resting angle. GSAP takes over the stamp's CSS rotation, so it ends at the same -12°.
         const stamp = stampSelector ? document.querySelector(stampSelector) : null;
         if (stamp) {
@@ -225,7 +199,7 @@ export function HeroMotion({ children, kanjiSelector, stampSelector, className }
           );
         }
 
-        // 6. Once the opening has finished, the kanji keeps a quiet idle motion.
+        // 5. Once the opening has finished, the kanji keeps a quiet idle motion.
         let stopAura: (() => void) | undefined;
         if (kanji) tl.call(() => (stopAura = startKanjiAura(kanji)));
 
@@ -235,21 +209,27 @@ export function HeroMotion({ children, kanjiSelector, stampSelector, className }
         };
       };
 
+      let stopWaiting = () => {};
+
       // Lines are measured and the cut is placed once the fonts have loaded, so nothing shifts.
+      // On a visit that opens with the splash, the entrance plays as the splash ends.
       void document.fonts.ready.then(() => {
         if (cancelled) return;
-        mm = gsap.matchMedia();
-        mm.add(MOTION_OK, play);
-        mm.add(MOTION_REDUCED, () => {
-          slashRef.current?.showScar();
-          // A still glow behind the kanji, with no float and no bursts.
-          const glow = kanjiSelector ? document.querySelector(`${kanjiSelector} [data-kanji-glow]`) : null;
-          if (glow) gsap.set(glow, { opacity: 0.5 });
+        stopWaiting = whenSplashEnds(() => {
+          mm = gsap.matchMedia();
+          mm.add(MOTION_OK, play);
+          mm.add(MOTION_REDUCED, () => {
+            slashRef.current?.showScar();
+            // A still glow behind the kanji, with no float and no bursts.
+            const glow = kanjiSelector ? document.querySelector(`${kanjiSelector} [data-kanji-glow]`) : null;
+            if (glow) gsap.set(glow, { opacity: 0.5 });
+          });
         });
       });
 
       return () => {
         cancelled = true;
+        stopWaiting();
         mm?.revert();
       };
     },

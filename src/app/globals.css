@@ -137,6 +137,22 @@ html[data-moon="grabbing"] {
   cursor: var(--cursor-grabbing, grabbing);
 }
 
+/* The opening splash (Splash.tsx) shows only while the head script has marked the page for it.
+   Should its script never start, it steps aside after 4 s, so the page is never left covered; the
+   running splash (`data-splash="run"`) turns that off. */
+@keyframes splash-fallback {
+  to {
+    visibility: hidden;
+  }
+}
+html[data-splash] [data-splash-screen] {
+  display: block;
+  animation: splash-fallback 0s 4s forwards;
+}
+html[data-splash="run"] [data-splash-screen] {
+  animation: none;
+}
+
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
