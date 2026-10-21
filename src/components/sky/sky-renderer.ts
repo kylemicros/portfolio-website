@@ -1,4 +1,4 @@
-import { moonAt, skyNow, type MoonMotion } from "@/lib/moon-arc";
+import { GLOW_REACH, moonAt, skyNow, type MoonMotion } from "@/lib/moon-arc";
 
 /**
  * The night sky's WebGL layer: one full-screen fragment shader that draws the sky's gradient,
@@ -137,10 +137,13 @@ void main() {
   float stars = starLayer(sf, 11.0, uTime, 0.975) + starLayer(sf + 37.0, 27.0, uTime * 0.7, 0.93) * 1.3;
   col += vec3(1.0, 0.9, 0.86) * stars * smoothstep(0.35, 0.75, y) * 0.8;
 
-  // The moon: a crimson disc with a softer rim, darker blood-red patches and a red glow.
+  // The moon: a crimson disc with a softer rim, darker blood-red patches and a red glow. The glow
+  // fades out over its last radius to nothing at GLOW_REACH radii, so the loop knows when the
+  // moon has wholly left the sky.
   vec2 d = (frag - uMoon.xy) / uMoon.z;
   float r = length(d);
-  col += vec3(0.91, 0.28, 0.23) * exp(-max(r - 1.0, 0.0) * 3.2) * 0.45 + vec3(0.6, 0.06, 0.08) * exp(-max(r - 1.0, 0.0) * 0.7) * 0.25;
+  float glow = 1.0 - smoothstep(${(GLOW_REACH - 1).toFixed(1)}, ${GLOW_REACH.toFixed(1)}, r);
+  col += (vec3(0.91, 0.28, 0.23) * exp(-max(r - 1.0, 0.0) * 3.2) * 0.45 + vec3(0.6, 0.06, 0.08) * exp(-max(r - 1.0, 0.0) * 0.7) * 0.25) * glow;
   if (r < 1.02) {
     vec3 core = vec3(0.702, 0.071, 0.106), rim = vec3(0.91, 0.278, 0.227);
     vec3 patchColor = vec3(0.45, 0.03, 0.06), deepPatch = vec3(0.30, 0.01, 0.04);

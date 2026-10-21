@@ -1,9 +1,10 @@
 /**
- * The moon's loop around the night sky: a full ellipse whose upper part crosses the sky from
- * right to left and whose lower part runs below the bottom edge, out of view, back to the right.
- * It starts low on the right and goes round about once a minute. On phones held upright it starts
- * in a gap between the hero's text blocks. A visitor can hold the moon somewhere else for a while;
- * let go, it eases back onto the loop.
+ * The moon's loop around the night sky. It rises upright near the right edge, crosses the sky
+ * from right to left over the top of an ellipse, and sinks upright near the left edge until it
+ * and its glow are wholly below the bottom edge; out of view, it goes back under the sky to the
+ * right. It starts low on the right and goes round about once a minute. On phones held upright it
+ * starts in a gap between the hero's text blocks. A visitor can hold the moon somewhere else for
+ * a while; let go, it eases back onto the loop.
  * Pure functions, no DOM. Coordinates are in px from the top left of the sky.
  */
 
@@ -40,14 +41,20 @@ export interface MoonMotion {
   released: MoonRelease | null;
 }
 
-// Seconds the loop takes, and the share of them the moon spends at least partly in view. The
-// part below the edge, which nobody sees, goes faster.
+// Seconds the loop takes, and the share of them the moon or its glow is at least partly in view.
+// The part below the edge, which nobody sees, goes faster.
 const PERIOD = 60;
 const IN_VIEW = 0.75;
+/**
+ * How far the moon's glow reaches, in moon radii from its centre. The sky's shader fades the glow
+ * out to nothing by there, so a moon this far past the bottom edge leaves no trace in view.
+ */
+export const GLOW_REACH = 4;
 // Seconds the moon takes to ease back onto its loop once let go.
 const RETURN = 1.4;
-// The start's angle, in turns of a half circle, measured as on a clock face drawn the
-// mathematical way (0 points right, a half turn points left, angles grow upward).
+// The start and the top of the loop are measured on a guide ellipse. The start's angle on it, in
+// turns of a half circle, measured as on a clock face drawn the mathematical way (0 points right,
+// a half turn points left, angles grow upward).
 const START = 0.18;
 // On short, wide screens (a phone on its side) the hero's kanji and heading fill the sky's
 // upper half, so the moon starts lower on the right, below the kanji. The start eases from
@@ -55,14 +62,17 @@ const START = 0.18;
 const START_SHORT = 0.06;
 const SHORT_HEIGHT = 450;
 const TALL_HEIGHT = 760;
-// The ellipse's centre sits this far down the sky; the loop rises above it.
+// The guide's centre sits this far down the sky.
 const CENTRE_Y = 0.9;
-// How high the loop climbs, as a share of the sky's height. Lower on portrait screens, where the
+// How high the guide climbs, as a share of the sky's height. Lower on portrait screens, where the
 // sky is tall and narrow.
 const RISE_LANDSCAPE = 0.74;
 const RISE_PORTRAIT = 0.62;
 // At the top of the loop the moon's top edge stays this far down the sky, below the site header.
 const HEADER_CLEAR = 88;
+// The arc is measured in this many pieces, one per degree, so the moon can cross it at a steady
+// speed.
+const ARC_STEPS = 180;
 // Space kept between the moon and the right edge where it starts.
 const EDGE_MARGIN = 0.02;
 // Phones held upright, narrower than PHONE_WIDTH, climb as high as the header allows. The hero's
@@ -75,20 +85,24 @@ const PHONE_WIDTH = 480;
 const PHONE_NARROW = 400;
 const PHONE_START_HIGH = 268;
 const PHONE_START_LOW = 682;
-// The highest a phone's start may sit on its ellipse, as the sine of its angle, so the ellipse
-// keeps a sensible width.
+// The highest a phone's start may sit on the guide, as the sine of its angle, so the arc over
+// the top keeps some height.
 const PHONE_START_LIMIT = 0.95;
 
 interface Loop {
+  /** The arc over the top: the upper half of this ellipse. The moon starts at its right end. */
   cx: number;
   cy: number;
   rx: number;
   ry: number;
   r: number;
-  /** Angles in radians: where the moon starts, comes into view on the right and goes out of view below the left. */
-  start: number;
-  rise: number;
-  set: number;
+  /**
+   * How far the moon rises upright to the arc's right end, and sinks from its left end, from
+   * where it and its glow are wholly below the sky.
+   */
+  side: number;
+  /** How far along the arc from its right end each of ARC_STEPS equal turns of its angle ends. */
+  arc: readonly number[];
 }
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
@@ -110,52 +124,77 @@ function startAngle(width: number, height: number): number {
   return START_SHORT + (START - START_SHORT) * tall;
 }
 
-/** The loop's ellipse for a sky of this size. */
+/** The loop for a sky of this size. */
 function loopFor(width: number, height: number): Loop {
   const r = moonRadius(width, height);
-  const cy = height * CENTRE_Y;
+  const centre = height * CENTRE_Y;
   const phone = width < height && width < PHONE_WIDTH;
-  const highest = cy - HEADER_CLEAR - r;
-  const rise = height * (width < height ? RISE_PORTRAIT : RISE_LANDSCAPE);
-  const ry = Math.max(r, phone ? highest : Math.min(rise, highest));
+  const highest = centre - HEADER_CLEAR - r;
+  const climb = height * (width < height ? RISE_PORTRAIT : RISE_LANDSCAPE);
+  const reach = Math.max(r, phone ? highest : Math.min(climb, highest));
 
-  let start = Math.PI * startAngle(width, height);
+  // How high the start sits on the guide, as the sine of its angle there.
+  let lift = Math.sin(Math.PI * startAngle(width, height));
   if (phone) {
     const startY = width < PHONE_NARROW ? PHONE_START_HIGH : Math.min(PHONE_START_LOW, height - 2 * r);
-    start = Math.asin(clamp((cy - startY) / ry, -PHONE_START_LIMIT, PHONE_START_LIMIT));
+    lift = clamp((centre - startY) / reach, -PHONE_START_LIMIT, PHONE_START_LIMIT);
   }
 
-  // The horizontal radius puts the starting moon just inside the right edge, whatever the width.
+  // The arc runs from the start, just inside the right edge, up to the guide's top and down to
+  // the same height on the left. Below its ends the moon moves upright, with the whole disc
+  // inside the side edges, so it rises and sets through the bottom edge, never along it.
   const cx = width / 2;
-  const rx = (cx - r - width * EDGE_MARGIN) / Math.cos(start);
-  // Below this angle under either end the whole moon is below the sky.
-  const below = Math.asin(clamp((height + r - cy) / ry, -1, 1));
-  // On narrow phones the ellipse is wider than the sky, and the whole moon is past the side edge
-  // within this angle of either end. Out of view from there down, it comes into view higher up.
-  const side = (cx + r) / rx;
-  const beside = side < 1 ? Math.acos(side) : -Infinity;
-  const hidden = beside >= below ? beside : -below;
-  return { cx, cy, rx, ry, r, start, rise: hidden, set: Math.PI - hidden };
+  const cy = centre - lift * reach;
+  const rx = cx - r - width * EDGE_MARGIN;
+  const ry = reach * (1 - lift);
+  const arc = [0];
+  for (let i = 1, length = 0, x = rx, y = 0; i <= ARC_STEPS; i++) {
+    const angle = (Math.PI * i) / ARC_STEPS;
+    const nextX = Math.cos(angle) * rx;
+    const nextY = Math.sin(angle) * ry;
+    length += Math.hypot(nextX - x, nextY - y);
+    arc.push(length);
+    x = nextX;
+    y = nextY;
+  }
+  return { cx, cy, rx, ry, r, side: height + GLOW_REACH * r - cy, arc };
+}
+
+/** The angle at this distance along the arc from its right end. */
+function arcAngle(arc: readonly number[], distance: number): number {
+  let i = 1;
+  while (i < ARC_STEPS && distance > arc[i]) i++;
+  const from = arc[i - 1];
+  const piece = arc[i] - from;
+  return (Math.PI * (i - 1 + (piece > 0 ? (distance - from) / piece : 0))) / ARC_STEPS;
 }
 
 /**
- * The moon's angle on its loop after this many seconds: steady while in view, faster below the
- * edge. The speed changes only where the moon is wholly out of view.
+ * The moon's centre on its loop after this many seconds: at one steady speed while it or its
+ * glow is in view, faster once both are wholly below the bottom edge. The speed changes only there.
  */
-function angleAt(loop: Loop, seconds: number): number {
-  const shown = loop.set - loop.rise;
-  const hidden = 2 * Math.PI - shown;
-  const startShare = ((loop.start - loop.rise) / shown) * IN_VIEW;
-  const phase = (((seconds / PERIOD + startShare) % 1) + 1) % 1;
-  if (phase < IN_VIEW) return loop.rise + (shown * phase) / IN_VIEW;
-  return loop.set + (hidden * (phase - IN_VIEW)) / (1 - IN_VIEW);
+function pointAt(loop: Loop, seconds: number): SkyPoint {
+  const { cx, cy, rx, ry, side, arc } = loop;
+  // The way in view: up the right, over the arc, down the left.
+  const over = arc[ARC_STEPS];
+  const shown = over + 2 * side;
+  const phase = (((seconds / PERIOD + (side / shown) * IN_VIEW) % 1) + 1) % 1;
+  if (phase >= IN_VIEW) {
+    // Back to the right under the sky, along the lower half of an ellipse below the edge.
+    const back = (Math.PI * (phase - IN_VIEW)) / (1 - IN_VIEW);
+    return { x: cx - Math.cos(back) * rx, y: cy + side + Math.sin(back) * ry };
+  }
+  const along = (shown * phase) / IN_VIEW;
+  if (along < side) return { x: cx + rx, y: cy + side - along };
+  if (along > side + over) return { x: cx - rx, y: cy + along - side - over };
+  const angle = arcAngle(arc, along - side);
+  return { x: cx + Math.cos(angle) * rx, y: cy - Math.sin(angle) * ry };
 }
 
 /** Where the loop has the moon after this many seconds. At 0 it is at its start, in view on the right. */
 export function loopAt(seconds: number, width: number, height: number): MoonPlacement {
   const loop = loopFor(width, height);
-  const angle = angleAt(loop, seconds);
-  return { x: loop.cx + Math.cos(angle) * loop.rx, y: loop.cy - Math.sin(angle) * loop.ry, r: loop.r };
+  return { ...pointAt(loop, seconds), r: loop.r };
 }
 
 /** A held moon stays wholly inside the sky. */
