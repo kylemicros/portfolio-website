@@ -63,7 +63,7 @@ const TRIGGER_LOOK =
   "inline-flex w-fit items-center gap-2 border border-border px-3 py-1.5 font-mono text-[0.7rem] uppercase tracking-[0.15em] text-paper transition-colors";
 const TRIGGER = cn(
   TRIGGER_LOOK,
-  "cursor-pointer hover:border-blade-hot hover:text-blade-hot focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+  "hover:border-blade-hot hover:text-blade-hot focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
 );
 const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring";
 
@@ -192,7 +192,7 @@ export function FileDialog({
         {row === undefined ? (
           <summary className={cn(TRIGGER, triggerClassName, "list-none [&::-webkit-details-marker]:hidden")}>{label}</summary>
         ) : (
-          <summary className={cn("cursor-pointer list-none [&::-webkit-details-marker]:hidden", FOCUS_RING, rowClassName)}>
+          <summary className={cn("list-none [&::-webkit-details-marker]:hidden", FOCUS_RING, rowClassName)}>
             {row}
             <span className={cn(TRIGGER_LOOK, triggerClassName)}>{label}</span>
           </summary>
@@ -230,7 +230,7 @@ export function FileDialog({
         </span>
         <DialogTrigger
           ref={triggerRef}
-          className={cn("absolute inset-0 z-10 cursor-pointer", FOCUS_RING)}
+          className={cn("absolute inset-0 z-10", FOCUS_RING)}
           onPointerEnter={prepareFlip}
           onFocus={prepareFlip}
         >

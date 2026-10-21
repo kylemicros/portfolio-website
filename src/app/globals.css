@@ -97,6 +97,46 @@
   --sidebar-ring: var(--blade-hot);
 }
 
+/* The themed cursors in `public/cursors/`, for a mouse or trackpad only: each is 32px with its
+   hotspot (the blade's tip, the I-beam's centre or the palm) and the browser's own cursor
+   behind it. Where `image-set()` works in `cursor`, high-density screens get the 64px copy. */
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --cursor-default: url("/cursors/arrow.svg") 2 2, default;
+    --cursor-pointer: url("/cursors/pointer.svg") 2 2, pointer;
+    --cursor-text: url("/cursors/text.svg") 16 16, text;
+    --cursor-grab: url("/cursors/grab.svg") 19 21, grab;
+    --cursor-grabbing: url("/cursors/grabbing.svg") 16 16, grabbing;
+  }
+}
+@supports (cursor: image-set(url("/cursors/arrow.svg") 1x) 2 2, default) {
+  @media (hover: hover) and (pointer: fine) {
+    :root {
+      --cursor-default: image-set(url("/cursors/arrow.svg") 1x, url("/cursors/arrow-2x.svg") 2x) 2 2, default;
+      --cursor-pointer: image-set(url("/cursors/pointer.svg") 1x, url("/cursors/pointer-2x.svg") 2x) 2 2, pointer;
+      --cursor-text: image-set(url("/cursors/text.svg") 1x, url("/cursors/text-2x.svg") 2x) 16 16, text;
+      --cursor-grab: image-set(url("/cursors/grab.svg") 1x, url("/cursors/grab-2x.svg") 2x) 19 21, grab;
+      --cursor-grabbing: image-set(url("/cursors/grabbing.svg") 1x, url("/cursors/grabbing-2x.svg") 2x) 16 16, grabbing;
+    }
+  }
+}
+
+/* While the moon is under the pointer or held, its hand shows over everything on the page: the
+   root swaps every themed cursor for the hand, so no rule has to match each element again. Outside
+   a layer, like the cursors above, so it wins over them. */
+html[data-moon="grab"] {
+  --cursor-default: var(--cursor-grab, grab);
+  --cursor-pointer: var(--cursor-grab, grab);
+  --cursor-text: var(--cursor-grab, grab);
+  cursor: var(--cursor-grab, grab);
+}
+html[data-moon="grabbing"] {
+  --cursor-default: var(--cursor-grabbing, grabbing);
+  --cursor-pointer: var(--cursor-grabbing, grabbing);
+  --cursor-text: var(--cursor-grabbing, grabbing);
+  cursor: var(--cursor-grabbing, grabbing);
+}
+
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
@@ -246,5 +286,35 @@
   h2,
   h3 {
     @apply font-display;
+  }
+  /* Where each themed cursor shows. A set cursor replaces the browser's `auto`, which picks the
+     I-beam over text by itself, so the I-beam goes on the elements that hold running text (a list
+     item only when it holds no blocks, links or pictures, so a card in a list keeps the arrow).
+     Later rules win: links and buttons over the text in them, then form fields, then disabled.
+     Everything else inside a link, a button or a disabled control inherits its cursor, so these
+     rules name the elements they reset rather than `*`, which the browser would test against every
+     element it restyles. */
+  @media (hover: hover) and (pointer: fine) {
+    html {
+      cursor: var(--cursor-default);
+    }
+    :where(p, h1, h2, h3, h4, h5, h6, dt, dd, blockquote, figcaption, pre, td, th, li:not(:has(div, p, a, button, ul, ol, img))) {
+      cursor: var(--cursor-text);
+    }
+    :where(a[href], button, [role="button"], summary, label[for]),
+    :where(a[href], button, [role="button"], summary, label[for]) :where(p, h1, h2, h3, h4, h5, h6, dt, dd, blockquote, figcaption, pre, td, th, li) {
+      cursor: var(--cursor-pointer);
+    }
+    :where(
+      input:is(:not([type]), [type="text"], [type="email"], [type="search"], [type="url"], [type="tel"], [type="password"], [type="number"]),
+      textarea,
+      [contenteditable]:not([contenteditable="false"])
+    ) {
+      cursor: var(--cursor-text);
+    }
+    :where(:disabled, [aria-disabled="true"]),
+    :where(:disabled, [aria-disabled="true"]) :where(p, h1, h2, h3, h4, h5, h6, dt, dd, blockquote, figcaption, pre, td, th, li, a[href], button, [role="button"], summary, label[for], input, textarea, [contenteditable]) {
+      cursor: not-allowed;
+    }
   }
 }

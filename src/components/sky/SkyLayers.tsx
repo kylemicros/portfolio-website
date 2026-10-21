@@ -95,7 +95,7 @@ const isOver = (moon: MoonPlacement, x: number, y: number) => Math.hypot(x - moo
  */
 function dragMoon(grip: MoonGrip): () => void {
   const root = document.documentElement;
-  const initial = { cursor: root.style.cursor, userSelect: root.style.userSelect };
+  const initial = { userSelect: root.style.userSelect };
   let pointer: { x: number; y: number; target: EventTarget | null } | null = null;
   let frame = 0;
   let drag: { id: number; dx: number; dy: number; at: SkyPoint } | null = null;
@@ -104,7 +104,9 @@ function dragMoon(grip: MoonGrip): () => void {
   const setGrabbable = (next: boolean) => {
     if (next === grabbable) return;
     grabbable = next;
-    root.style.cursor = next ? "grab" : initial.cursor;
+    // `data-moon` puts the moon's hand over the whole page (globals.css), text included.
+    if (next) root.dataset.moon = "grab";
+    else delete root.dataset.moon;
   };
 
   const update = () => {
@@ -140,7 +142,7 @@ function dragMoon(grip: MoonGrip): () => void {
     } catch {
       // The pointer is already gone; its moves still reach the window until it lifts.
     }
-    root.style.cursor = "grabbing";
+    root.dataset.moon = "grabbing";
     root.style.userSelect = "none";
     grip.hold(drag.at);
   };
@@ -152,7 +154,7 @@ function dragMoon(grip: MoonGrip): () => void {
     if (root.hasPointerCapture(id)) root.releasePointerCapture(id);
     grip.release(at);
     grabbable = false;
-    root.style.cursor = initial.cursor;
+    delete root.dataset.moon;
     root.style.userSelect = initial.userSelect;
   };
 

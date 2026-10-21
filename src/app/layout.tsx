@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Serif_JP } from "next/font/google";
 
+import { BladeTrail } from "@/components/motion/BladeTrail";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { RootFooter } from "@/components/RootFooter";
 import { RootHeader } from "@/components/RootHeader";
@@ -71,6 +72,8 @@ export default function RootLayout({
           {children}
           <RootFooter />
         </div>
+        {/* After the page, so it draws over the sticky header; dialogs open after it, so over it. */}
+        <BladeTrail />
       </body>
     </html>
   );

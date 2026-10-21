@@ -82,7 +82,7 @@ export function CopyEmail({ email, className }: Readonly<CopyEmailProps>) {
           type="button"
           data-copy-email=""
           onClick={() => void copy()}
-          className="inline-flex cursor-pointer items-center gap-2 border border-border px-2.5 py-1 font-mono text-[0.7rem] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:border-blade-hot hover:text-blade-hot focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
+          className="inline-flex items-center gap-2 border border-border px-2.5 py-1 font-mono text-[0.7rem] uppercase tracking-[0.15em] text-muted-foreground transition-colors hover:border-blade-hot hover:text-blade-hot focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring"
         >
           <CopyIcon aria-hidden="true" className="size-3.5" />
           Copy email
