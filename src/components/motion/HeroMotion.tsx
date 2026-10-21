@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useRef } from "react";
 
 import { gsap, MOTION_OK, MOTION_REDUCED, SplitText, useGSAP } from "@/lib/gsap";
+import { whenSplashEnds } from "@/lib/splash";
 import { cn } from "@/lib/utils";
 
 import type { SlashHandle } from "./Slash";
@@ -30,6 +31,9 @@ const SLASH_AT = 0.08;
 const SWING_END = SLASH_AT + 0.43;
 // The slash has settled by about 1.45 s; the stamp lands just after.
 const STAMP_AT = 1.5;
+// Right after the splash's slash the hero does not cut again, so the stamp lands once the heading's
+// cuts have faded.
+const STAMP_AFTER_CUT = 0.5;
 const SMALL_SCREEN = 640;
 
 // The kanji aura's values come from the approved demo, in absolute pixels at every kanji size,
@@ -118,6 +122,8 @@ function startKanjiAura(kanji: Element): () => void {
  * Plays the hero entrance over the text column: the kanji brushes in, the heading lines are
  * cut across in red, one big slash splits the column and settles, then the buttons settle and the
  * stamp lands on the ID card.
+ * Right after the opening splash's slash, the big slash is left out (only its scar is shown) and
+ * the stamp lands sooner.
  * The text is fully visible before, during and after; the motion only plays over it.
  * Afterwards the kanji floats, its glow breathes and it glitches now and then.
  * With reduced motion only the scar, a still glow and the stamp (in place, by its own CSS) are shown.
@@ -134,7 +140,7 @@ export function HeroMotion({ children, kanjiSelector, stampSelector, className }
       let cancelled = false;
       let mm: gsap.MatchMedia | undefined;
 
-      const play = () => {
+      const play = (afterCut: boolean) => {
         const root = rootRef.current;
         const content = contentRef.current;
         const bars = barsRef.current;
@@ -188,27 +194,33 @@ export function HeroMotion({ children, kanjiSelector, stampSelector, className }
         // 3. The slash, bounded to this column. The column is split along the cut.
         // 4. After the swing the buttons recoil a few pixels and settle. They stay opaque.
         // The copy of the column made at impact gets the same settle, in step with the original.
-        const settle = { y: 0, duration: 0.4, ease: "power2.out", stagger: 0.05 };
-        tl.add(
-          slash.timeline({
-            splitTarget: content,
-            small: window.innerWidth < SMALL_SCREEN,
-            onClone: (clone) => {
-              const copies = clone.querySelectorAll("[data-hero-actions] > *");
-              if (copies.length === 0) return;
-              gsap.fromTo(
-                copies,
-                { y: 6 },
-                { ...settle, delay: SWING_END - (SLASH_AT + SLASH_IMPACT), immediateRender: false }
-              );
-            },
-          }),
-          SLASH_AT
-        );
+        // Right after the splash's slash the hero does not cut again: only the scar it would have
+        // left is shown.
+        if (afterCut) {
+          slash.showScar();
+        } else {
+          const settle = { y: 0, duration: 0.4, ease: "power2.out", stagger: 0.05 };
+          tl.add(
+            slash.timeline({
+              splitTarget: content,
+              small: window.innerWidth < SMALL_SCREEN,
+              onClone: (clone) => {
+                const copies = clone.querySelectorAll("[data-hero-actions] > *");
+                if (copies.length === 0) return;
+                gsap.fromTo(
+                  copies,
+                  { y: 6 },
+                  { ...settle, delay: SWING_END - (SLASH_AT + SLASH_IMPACT), immediateRender: false }
+                );
+              },
+            }),
+            SLASH_AT
+          );
 
-        const actions = content.querySelectorAll("[data-hero-actions] > *");
-        if (actions.length > 0) {
-          tl.fromTo(actions, { y: 6 }, { ...settle, immediateRender: false, clearProps: "transform" }, SWING_END);
+          const actions = content.querySelectorAll("[data-hero-actions] > *");
+          if (actions.length > 0) {
+            tl.fromTo(actions, { y: 6 }, { ...settle, immediateRender: false, clearProps: "transform" }, SWING_END);
+          }
         }
 
         tl.call(() => bars.replaceChildren());
@@ -221,7 +233,7 @@ export function HeroMotion({ children, kanjiSelector, stampSelector, className }
             stamp,
             { opacity: 0, scale: 1.6, rotation: -18 },
             { opacity: 1, scale: 1, rotation: -12, duration: 0.22, ease: "power4.in" },
-            STAMP_AT
+            afterCut ? STAMP_AFTER_CUT : STAMP_AT
           );
         }
 
@@ -235,21 +247,27 @@ export function HeroMotion({ children, kanjiSelector, stampSelector, className }
         };
       };
 
+      let stopWaiting = () => {};
+
       // Lines are measured and the cut is placed once the fonts have loaded, so nothing shifts.
+      // On a visit that opens with the splash, the entrance plays as the splash ends.
       void document.fonts.ready.then(() => {
         if (cancelled) return;
-        mm = gsap.matchMedia();
-        mm.add(MOTION_OK, play);
-        mm.add(MOTION_REDUCED, () => {
-          slashRef.current?.showScar();
-          // A still glow behind the kanji, with no float and no bursts.
-          const glow = kanjiSelector ? document.querySelector(`${kanjiSelector} [data-kanji-glow]`) : null;
-          if (glow) gsap.set(glow, { opacity: 0.5 });
+        stopWaiting = whenSplashEnds((afterCut) => {
+          mm = gsap.matchMedia();
+          mm.add(MOTION_OK, () => play(afterCut));
+          mm.add(MOTION_REDUCED, () => {
+            slashRef.current?.showScar();
+            // A still glow behind the kanji, with no float and no bursts.
+            const glow = kanjiSelector ? document.querySelector(`${kanjiSelector} [data-kanji-glow]`) : null;
+            if (glow) gsap.set(glow, { opacity: 0.5 });
+          });
         });
       });
 
       return () => {
         cancelled = true;
+        stopWaiting();
         mm?.revert();
       };
     },

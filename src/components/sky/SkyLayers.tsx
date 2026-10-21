@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { MOTION_REDUCED } from "@/lib/gsap";
 import { moonAt, skyNow, type MoonMotion, type MoonPlacement, type SkyPoint } from "@/lib/moon-arc";
+import { whenSplashEnds } from "@/lib/splash";
 import { cn } from "@/lib/utils";
 
 import { isSkyEvent, type SkyCommand } from "./sky-messages";
@@ -244,9 +245,10 @@ async function pageDriver({ canvas, progress, motion, reducedMotion, onReady, on
 
 /**
  * The moving night sky: a WebGL canvas with the sky, stars, moon and clouds. Nothing starts until
- * the page has loaded and the browser is idle; until then, and whenever WebGL is missing or lost,
- * the CSS sky behind it shows instead. The page keeps the moon's clock and the visitor's hold on
- * it, and hands every change to the sky, so both place the moon with the same maths.
+ * the page has loaded, any opening splash has ended and the browser is idle; until then, and
+ * whenever WebGL is missing or lost, the CSS sky behind it shows instead. The page keeps the moon's
+ * clock and the visitor's hold on it, and hands every change to the sky, so both place the moon
+ * with the same maths.
  */
 export function SkyLayers() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -375,11 +377,15 @@ export function SkyLayers() {
       };
     };
 
+    let stopWaiting = () => {};
+    // After the opening splash, when there is one, so the two never compete for the first seconds.
     const begin = () => {
-      const run = () => void start();
-      // Safari has no requestIdleCallback.
-      if (typeof window.requestIdleCallback === "function") idle = window.requestIdleCallback(run, { timeout: IDLE_TIMEOUT });
-      else timer = window.setTimeout(run, 0);
+      stopWaiting = whenSplashEnds(() => {
+        const run = () => void start();
+        // Safari has no requestIdleCallback.
+        if (typeof window.requestIdleCallback === "function") idle = window.requestIdleCallback(run, { timeout: IDLE_TIMEOUT });
+        else timer = window.setTimeout(run, 0);
+      });
     };
 
     const onMotionChange = () => {
@@ -395,6 +401,7 @@ export function SkyLayers() {
     return () => {
       cancelled = true;
       window.removeEventListener("load", begin);
+      stopWaiting();
       if (idle) window.cancelIdleCallback(idle);
       window.clearTimeout(timer);
       motion.removeEventListener("change", onMotionChange);
