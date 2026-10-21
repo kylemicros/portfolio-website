@@ -62,6 +62,7 @@ export type SpriteId =
   | "googlecloud"
   | "circleci"
   | "vercel"
+  | "render"
   | "claudecode"
   | "terminal"
   | "seal-nazo";
@@ -114,6 +115,7 @@ export const TECH_ICONS: Record<Skill, SpriteId> = {
   "Google Cloud Platform": "googlecloud",
   CircleCI: "circleci",
   Vercel: "vercel",
+  Render: "render",
   Codex: "terminal",
   "Claude Code": "claudecode",
 };

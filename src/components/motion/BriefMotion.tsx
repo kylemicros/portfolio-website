@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useRef } from "react";
 
 import { gsap, MOTION_OK, prepareScrollTriggers, useGSAP } from "@/lib/gsap";
+import { arrivalStart } from "@/lib/stage";
 
 interface BriefMotionProps {
   children: ReactNode;
@@ -47,7 +48,7 @@ export function BriefMotion({ children, className }: Readonly<BriefMotionProps>)
         // close the box at the bottom-right corner.
         const draw = { duration: 0.45, ease: "power2.inOut", clearProps: "transform" };
         gsap
-          .timeline({ scrollTrigger: { trigger: root, start: "top 80%", once: true } })
+          .timeline({ scrollTrigger: { trigger: root, start: arrivalStart(80), once: true } })
           .to(first, { scaleX: 1, scaleY: 1, ...draw }, 0)
           .to(second, { scaleX: 1, scaleY: 1, ...draw }, 0.45)
           .to(lines, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out", stagger: 0.12, clearProps: "opacity,transform" }, 0.1);

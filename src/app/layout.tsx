@@ -69,7 +69,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Runs while the page is parsed, before the first paint: decides whether the splash plays. */}
+        {/* Runs while the page is parsed, before the first paint: marks that JavaScript runs and
+            decides whether the splash plays. */}
         <script dangerouslySetInnerHTML={{ __html: SPLASH_HEAD_SCRIPT }} />
       </head>
       <body className="bg-background text-foreground antialiased">

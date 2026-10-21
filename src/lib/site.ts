@@ -111,6 +111,7 @@ const skills = [
   "Google Cloud Platform",
   "CircleCI",
   "Vercel",
+  "Render",
   "Codex",
   "Claude Code",
 ] as const;
@@ -318,23 +319,11 @@ export const siteConfig: SiteConfig = {
     { label: "Data", skills: ["PostgreSQL", "MySQL", "Redis", "Prisma", "Neon", "Supabase", "Firebase"] },
     {
       label: "Infra",
-      skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "Google Cloud Platform", "CircleCI", "Vercel", "CI/CD"],
+      skills: ["Docker", "Kubernetes", "GitHub Actions", "Azure", "AWS", "Google Cloud Platform", "CircleCI", "Vercel", "Render", "CI/CD"],
     },
     { label: "Testing and tools", skills: ["Vitest", "Playwright", "Puppeteer", "Figma", "Codex", "Claude Code"] },
   ],
   experiences: [
-    {
-      company: "Habile Group",
-      role: "Freelance Developer",
-      start: "May 2026",
-      end: "Present",
-      summary: "",
-      achievements: [
-        "Led the end-to-end migration of a legacy e-commerce website to a modern production platform, independently owning development and delivery for a business serving customers internationally.",
-        "Developed and delivered a production Real Estate Finance Management System (REFMS) used internally by Habile's finance department to centralize property, loan, and financial operations.",
-      ],
-      technologies: ["Next.js", "Supabase", "Google Cloud Platform", "Render"],
-    },
     {
       company: "Rubato Life",
       logo: RubatoLifeLogo,
