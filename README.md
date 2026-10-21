@@ -42,3 +42,7 @@ The site's content (profile, projects, experience and contact details) lives in 
 | `pnpm start` | Serves the production build (run `pnpm build` first) |
 | `pnpm lint` | Lints the code with ESLint |
 | `pnpm typecheck` | Type-checks the code with the TypeScript compiler |
+
+## Art credits
+
+The clouds in the night sky come from "FREE White clouds textures" by [GOBI Studio](https://gobistudio.itch.io/free-clouds-tiles-textures), licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). They are modified (cropped, tinted and resized) and live in `public/sky/`.

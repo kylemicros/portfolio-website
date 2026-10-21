@@ -14,6 +14,7 @@
   --container-measure: 34em;
   --color-blade: var(--blade);
   --color-blade-hot: var(--blade-hot);
+  --color-blade-label: var(--blade-label);
   --color-paper: var(--paper);
   --color-ink-raised: var(--ink-raised);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -57,6 +58,12 @@
   --paper: oklch(92.64% 0.0173 84.59);
   --blade: oklch(53.04% 0.2074 22.32);
   --blade-hot: oklch(64.46% 0.2412 23.83);
+  /* The same red a little lighter, for small red labels over the night sky, where `blade-hot`
+     falls short of WCAG AA over the moon and the clouds' lit edges. Large red text keeps
+     `blade-hot`. */
+  --blade-label: oklch(68% 0.2082 23.83);
+  /* The shade behind text over the night sky (`sky-shade`). */
+  --sky-shade: rgb(10 2 4 / 0.7);
   --background: oklch(13.54% 0.0047 285.76);
   --foreground: var(--paper);
   --card: var(--ink-raised);
@@ -143,6 +150,39 @@
   @variant 2xl {
     --gutter: 4rem;
   }
+}
+
+/* The night sky without WebGL or JavaScript, and until the moving sky starts: the same gradient
+   as the sky's shader (maroon-black overhead to a crimson band on the horizon, plum haze below),
+   with a slight vignette. */
+@utility bg-night-sky {
+  background-color: #0a0204;
+  background-image:
+    radial-gradient(ellipse 75% 70% at 50% 50%, transparent 55%, rgb(0 0 0 / 0.22)),
+    linear-gradient(
+      to bottom,
+      #0a0204 0%,
+      #0e0205 12%,
+      #180306 25%,
+      #230408 38%,
+      #290509 50%,
+      #32060b 60%,
+      #43080f 70%,
+      #4c0911 78%,
+      #680e16 86%,
+      #8b151c 92%,
+      #861b23 96%,
+      #721e29 100%
+    );
+}
+
+/* Soft dark shading behind text that sits straight on the night sky, so it keeps WCAG AA
+   contrast over the moon and the clouds' lit edges while the open sky stays bright. The block is
+   shaded and a blurred shadow feathers the shade out past its edges, so the shade has no hard
+   edge. Background and shadow only: the layout does not change. */
+@utility sky-shade {
+  background-color: var(--sky-shade);
+  box-shadow: 0 0 1.5rem 1.5rem var(--sky-shade);
 }
 
 @layer base {

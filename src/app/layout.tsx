@@ -3,9 +3,9 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Noto_Serif_JP } from "next/font/google";
 
-import { InkBackdrop } from "@/components/InkBackdrop";
 import { RootFooter } from "@/components/RootFooter";
 import { RootHeader } from "@/components/RootHeader";
+import { NightSky } from "@/components/sky/NightSky";
 import { siteConfig } from "@/lib/site";
 
 const geistSans = Geist({
@@ -63,7 +63,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${notoSerifJp.variable}`}
     >
       <body className="bg-background text-foreground antialiased">
-        <InkBackdrop />
+        <NightSky />
         <div className="flex min-h-screen flex-col">
           <RootHeader />
           {children}

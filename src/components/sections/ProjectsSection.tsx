@@ -31,7 +31,7 @@ export function ProjectsSection({ projects, githubUrl = siteConfig.githubProfile
           intro={siteConfig.projectsHead.intro}
         />
 
-        <div className="space-y-6">
+        <div className="sky-shade space-y-6">
           <CasePreview items={previews}>
             <CaseDecode>
               {/* The role keeps the list's semantics in Safari, which drops them without list markers. */}

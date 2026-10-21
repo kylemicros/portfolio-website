@@ -73,10 +73,10 @@ export function HeroSection() {
               >
                 {renderTitle(hero.title, hero.titleEmphasis)}
               </h1>
-              <p className="max-w-measure text-pretty text-lg text-paper/90 sm:text-xl">
+              <p className="sky-shade max-w-measure text-pretty text-lg text-paper/90 sm:text-xl">
                 {hero.subtitle}
               </p>
-              <p className="max-w-measure text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
+              <p className="sky-shade max-w-measure text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
                 {hero.description}
               </p>
             </div>
