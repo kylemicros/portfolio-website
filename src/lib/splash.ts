@@ -11,13 +11,19 @@ const ATTRIBUTE = "data-splash";
 const RUNNING = "run";
 const END_EVENT = "splash-end";
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
+/**
+ * Set on <html> by the head script whatever it decides, so CSS can tell that JavaScript runs on
+ * the page (the scrollytelling stage's first paint, globals.css).
+ */
+export const SCRIPT_MARK = "data-js";
 
 /**
- * The head script: marks <html> when JavaScript runs, motion is allowed, session storage works and
- * the splash has not been seen this session. Any error (storage blocked) shows nothing.
+ * The head script: marks <html> with `SCRIPT_MARK`, then for the splash when motion is allowed,
+ * session storage works and the splash has not been seen this session. Any error (storage
+ * blocked) shows no splash.
  * `wantsSplash` below makes the same decision and must stay in step with it.
  */
-export const SPLASH_HEAD_SCRIPT = `(function(){try{var s=window.sessionStorage;if(s.getItem(${JSON.stringify(SEEN_KEY)})||window.matchMedia(${JSON.stringify(REDUCED_MOTION)}).matches)return;s.setItem(${JSON.stringify(PROBE_KEY)},"1");s.removeItem(${JSON.stringify(PROBE_KEY)});document.documentElement.setAttribute(${JSON.stringify(ATTRIBUTE)},"")}catch(e){}})()`;
+export const SPLASH_HEAD_SCRIPT = `(function(){document.documentElement.setAttribute(${JSON.stringify(SCRIPT_MARK)},"");try{var s=window.sessionStorage;if(s.getItem(${JSON.stringify(SEEN_KEY)})||window.matchMedia(${JSON.stringify(REDUCED_MOTION)}).matches)return;s.setItem(${JSON.stringify(PROBE_KEY)},"1");s.removeItem(${JSON.stringify(PROBE_KEY)});document.documentElement.setAttribute(${JSON.stringify(ATTRIBUTE)},"")}catch(e){}})()`;
 
 /** The head script's decision, made again in the page. */
 function wantsSplash(): boolean {

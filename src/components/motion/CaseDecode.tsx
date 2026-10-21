@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useRef } from "react";
 
 import { gsap, loadScrambleText, MOTION_OK, prepareScrollTriggers, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { arrivalStart } from "@/lib/stage";
 
 interface CaseDecodeProps {
   children: ReactNode;
@@ -51,7 +52,7 @@ export function CaseDecode({ children, className }: Readonly<CaseDecodeProps>) {
               counts.forEach((count) => (count.textContent = "00"));
 
               const entrance = gsap.timeline({
-                scrollTrigger: { trigger: root, start: "top 80%", once: true },
+                scrollTrigger: { trigger: root, start: arrivalStart(80), once: true },
               });
               gsap.utils.toArray<HTMLElement>("[data-decode]", root).forEach((title, index) => {
                 const text = title.textContent ?? "";

@@ -96,6 +96,8 @@
   <!-- Simple Icons -->
   <symbol id="vercel" viewBox="0 0 24 24"><path d="m12 1.61 12 20.78H0Z"/></symbol>
   <!-- Simple Icons -->
+  <symbol id="render" viewBox="0 0 24 24"><path d="M18.26.01c-3.12-.15-5.74 2.11-6.19 5.08-.02.14-.04.27-.07.41-.7 3.7-3.94 6.51-7.83 6.51-1.39 0-2.69-.36-3.83-.98a.2.2 0 0 0-.3.18V24H12v-9c0-1.66 1.34-3 2.99-3h2.99c3.38 0 6.1-2.82 5.97-6.24-.12-3.08-2.61-5.6-5.68-5.75"/></symbol>
+  <!-- Simple Icons -->
   <symbol id="claudecode" viewBox="0 0 24 24"><path d="M21 10.5h3v3h-3v3h-1.5v3H18v-3h-1.5v3H15v-3H9v3H7.5v-3H6v3H4.5v-3H3v-3H0v-3h3v-6h18Zm-15 0h1.5v-3H6Zm10.5 0H18v-3h-1.5z"/></symbol>
   <!-- drawn for this site -->
   <symbol id="terminal" viewBox="0 0 24 24"><path d="M3 5h18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v10h18V7Zm2.3 2.7 1.4-1.4L10.4 12l-3.7 3.7-1.4-1.4L7.6 12ZM12 14h6v2h-6Z"/></symbol>

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useRef } from "react";
 
 import { gsap, loadScrambleText, MOTION_OK, prepareScrollTriggers, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { arrivalStart } from "@/lib/stage";
 
 interface ToolkitDecodeProps {
   children: ReactNode;
@@ -44,7 +45,7 @@ export function ToolkitDecode({ children, className }: Readonly<ToolkitDecodePro
             // real text back.
             context.add(() => {
               const decode = gsap.timeline({
-                scrollTrigger: { trigger: root, start: "top 80%", once: true },
+                scrollTrigger: { trigger: root, start: arrivalStart(80), once: true },
               });
               gsap.utils.toArray<HTMLElement>("[data-decode]", root).forEach((label, index) => {
                 const text = label.textContent ?? "";

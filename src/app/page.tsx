@@ -1,3 +1,4 @@
+import { ScrollStage } from "@/components/motion/ScrollStage";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { ContactSection } from "@/components/sections/ContactSection";
 import { ExperienceSection } from "@/components/sections/ExperienceSection";
@@ -13,6 +14,7 @@ export default function Home() {
       <ProjectsSection projects={siteConfig.projects} githubUrl={siteConfig.githubProfile} />
       <ExperienceSection experiences={siteConfig.experiences} />
       <ContactSection contact={siteConfig.contact} />
+      <ScrollStage links={siteConfig.navLinks} />
     </main>
   );
 }

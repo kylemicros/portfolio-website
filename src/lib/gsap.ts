@@ -31,6 +31,11 @@ export function loadScrambleText(): Promise<void> {
 // Media queries for gsap.matchMedia(): motion only runs when the visitor has not asked for less.
 export const MOTION_OK = "(prefers-reduced-motion: no-preference)";
 export const MOTION_REDUCED = "(prefers-reduced-motion: reduce)";
+/**
+ * The scrollytelling stage (`ScrollStage`): a wide and tall enough window, a mouse or trackpad,
+ * motion allowed. globals.css repeats it for the rules that apply before the script runs.
+ */
+export const STAGE = "(min-width: 1024px) and (min-height: 640px) and (pointer: fine) and (prefers-reduced-motion: no-preference)";
 
 let prepared = false;
 

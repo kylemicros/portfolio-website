@@ -153,6 +153,43 @@ html[data-splash="run"] [data-splash-screen] {
   animation: none;
 }
 
+/* The scrollytelling stage (ScrollStage.tsx), on the page that has it (its rail,
+   `data-scroll-stage`, is in the page's HTML), under the same query as `STAGE` in lib/gsap.ts,
+   and only once the head script has marked that JavaScript runs (`data-js`), so a page whose
+   script never runs is never hidden or left without its scrollbar:
+   - until the stage starts (`data-on` on the rail), only the section the page opens on shows,
+     the first or the one in the address (`/#contact`). Should the stage not start, the others
+     show after 4 s, as the splash steps aside;
+   - the rail shows the place in the page, so the page has no scrollbar. Set here, it is gone
+     from the first paint and nothing moves. Wheel, keys and trackpad scroll as before. Should
+     the stage not start, the scrollbar comes back after 4 s too. */
+@keyframes stage-fallback {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes stage-scrollbar-fallback {
+  to {
+    scrollbar-width: auto;
+  }
+}
+@media (min-width: 1024px) and (min-height: 640px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  html[data-js] main:has(> [data-scroll-stage]:not([data-on])):not(:has(> section:target)) > section:not(:first-of-type),
+  html[data-js] main:has(> [data-scroll-stage]:not([data-on])):has(> section:target) > section:not(:target) {
+    opacity: 0;
+    animation: stage-fallback 0s 4s forwards;
+  }
+  html[data-js]:has(> body main > [data-scroll-stage]) {
+    scrollbar-width: none;
+  }
+  html[data-js]:has(> body main > [data-scroll-stage]:not([data-on])) {
+    animation: stage-scrollbar-fallback 0s 4s forwards;
+  }
+  html[data-js]:has(> body main > [data-scroll-stage])::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .dark {
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
@@ -261,7 +298,8 @@ html[data-splash="run"] [data-splash-screen] {
   /* The page's scrollbar: a crimson blade (a darker spine, the red body and a light, sharpened
      edge) in a track of the sky's darkest red-black. Every part of the thumb keeps at least 3:1
      against the track. Chrome, Edge and Safari draw it from these rules; Firefox takes the two
-     colours below. Only the page's own scrollbar is themed. */
+     colours below. Only the page's own scrollbar is themed. On the scrollytelling stage it is
+     hidden (above). */
   html::-webkit-scrollbar {
     width: 12px;
     height: 12px;

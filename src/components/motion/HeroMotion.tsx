@@ -5,6 +5,7 @@ import { useRef } from "react";
 
 import { gsap, MOTION_OK, MOTION_REDUCED, SplitText, useGSAP } from "@/lib/gsap";
 import { whenSplashEnds } from "@/lib/splash";
+import { watchStage } from "@/lib/stage";
 import { cn } from "@/lib/utils";
 
 import type { SlashHandle } from "./Slash";
@@ -37,8 +38,9 @@ const GLITCH_RESET = 0.23;
 
 /**
  * Starts the kanji's idle motion: a slow float, a breathing glow and short glitch bursts
- * every 2.2 to 4.2 s. It pauses while the kanji is off screen (or hidden, as under 480 px)
- * and while the tab is hidden. Returns a function that stops it and restores the layers.
+ * every 2.2 to 4.2 s. It pauses while the kanji is off screen (or hidden, as under 480 px),
+ * while the hero is not on the scrollytelling stage and while the tab is hidden. Returns a
+ * function that stops it and restores the layers.
  */
 function startKanjiAura(kanji: Element): () => void {
   const float = kanji.querySelector("[data-kanji-float]");
@@ -92,16 +94,22 @@ function startKanjiAura(kanji: Element): () => void {
   };
 
   let inView = false;
-  const update = () => setPaused(!inView || document.hidden);
+  let onStage = true;
+  const update = () => setPaused(!inView || !onStage || document.hidden);
   const observer = new IntersectionObserver(([entry]) => {
     inView = entry?.isIntersecting ?? false;
     update();
   });
   observer.observe(kanji);
+  const stopWatching = watchStage(kanji, (value) => {
+    onStage = value;
+    update();
+  });
   document.addEventListener("visibilitychange", update);
 
   return () => {
     observer.disconnect();
+    stopWatching();
     document.removeEventListener("visibilitychange", update);
     next?.kill();
     burstTl?.kill();

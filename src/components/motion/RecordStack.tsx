@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useRef } from "react";
 
 import { gsap, prepareScrollTriggers, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { arrivalStart } from "@/lib/stage";
 import { cn } from "@/lib/utils";
 
 interface RecordStackProps {
@@ -86,7 +87,7 @@ export function RecordStack({ children, className }: Readonly<RecordStackProps>)
                 duration: 0.3,
                 ease: "power4.in",
                 immediateRender: false,
-                scrollTrigger: { trigger: mark, start: "top 85%", once: true },
+                scrollTrigger: { trigger: mark, start: arrivalStart(85), once: true },
               }
             );
           }
