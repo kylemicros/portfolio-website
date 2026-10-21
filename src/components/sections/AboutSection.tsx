@@ -11,7 +11,7 @@ interface AboutSectionProps {
 
 export function AboutSection({ about, skillGroups }: Readonly<AboutSectionProps>) {
   return (
-    <section id="about" className="relative border-t border-border/60" aria-labelledby="about-heading">
+    <section id="about" className="relative" aria-labelledby="about-heading">
       <div className="site-width flex flex-col gap-10 py-20">
         <SectionHead number="01" label="Profile" headingId="about-heading" title={about.title} />
 

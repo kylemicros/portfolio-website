@@ -13,7 +13,7 @@ export function ExperienceSection({ experiences }: Readonly<ExperienceSectionPro
   return (
     <section
       id="experience"
-      className="relative border-t border-border/60"
+      className="relative"
       aria-labelledby="experience-heading"
     >
       <div className="site-width flex flex-col gap-4 py-20">
