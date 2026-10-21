@@ -190,9 +190,54 @@
     @apply border-border outline-ring;
   }
   /* Turned on by script once the page has loaded, so the browser's own scroll on load (to a
-     link's #target, or back to the place before a reload) is instant and lands first. */
-  html[data-scroll-ready] {
-    scroll-behavior: smooth;
+     link's #target, or back to the place before a reload) is instant and lands first. Visitors
+     who ask for reduced motion jump straight to a section instead. */
+  @media (prefers-reduced-motion: no-preference) {
+    html[data-scroll-ready] {
+      scroll-behavior: smooth;
+    }
+    /* While the wheel's glide runs (Lenis marks it on the page), a scroll a script starts lands
+       at once, so the glide can give way to it. */
+    html.lenis-smooth {
+      scroll-behavior: auto;
+    }
+  }
+  /* The page's scrollbar: a crimson blade (a darker spine, the red body and a light, sharpened
+     edge) in a track of the sky's darkest red-black. Every part of the thumb keeps at least 3:1
+     against the track. Chrome, Edge and Safari draw it from these rules; Firefox takes the two
+     colours below. Only the page's own scrollbar is themed. */
+  html::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background-color: #0a0204;
+  }
+  html::-webkit-scrollbar-track {
+    background-color: #0a0204;
+    box-shadow: inset 1px 0 0 rgb(139 21 28 / 0.45);
+  }
+  html::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 0 6px 0 0 / 0 18px 0 0;
+    background: linear-gradient(to right, var(--blade) 2px, var(--blade-hot) 2px 4.5px, var(--blade-label) 4.5px) padding-box;
+  }
+  html::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to right, var(--blade-hot) 2px, var(--blade-label) 2px 4.5px, var(--paper) 4.5px) padding-box;
+  }
+  html::-webkit-scrollbar-thumb:active {
+    border-width: 2px;
+    background: linear-gradient(to right, var(--blade-hot) 2px, var(--blade-label) 2px 5.5px, var(--paper) 5.5px) padding-box;
+  }
+  html::-webkit-scrollbar-corner {
+    background-color: #0a0204;
+  }
+  @supports not selector(::-webkit-scrollbar) {
+    html {
+      scrollbar-color: var(--blade-hot) #0a0204;
+    }
+    /* The colours are inherited: the dialogs and other inner scrollers keep the browser's own. */
+    body {
+      scrollbar-color: auto;
+    }
   }
   body {
     @apply bg-background text-foreground;
