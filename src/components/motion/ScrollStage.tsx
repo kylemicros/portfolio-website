@@ -3,6 +3,7 @@
 import { useRef } from "react";
 
 import type { NavbarLink } from "@/components/Navbar";
+import { endStageSection, showStageSection, watchSections } from "@/lib/current-section";
 import { gsap, prepareScrollTriggers, ScrollTrigger, STAGE, useGSAP } from "@/lib/gsap";
 import { SCRIPT_MARK } from "@/lib/splash";
 import { OFF_STAGE, setStageTurns } from "@/lib/stage";
@@ -316,6 +317,8 @@ export function ScrollStage({ links }: Readonly<ScrollStageProps>) {
           });
 
           shownScene = current;
+          // The header's seal marks the same section as the rail.
+          showStageSection(scenes[current]?.el.id || null);
           ticks.forEach((tick, i) => tick.toggleAttribute("data-active", tickScene[i] === current));
           // A wheel that has brought another section on stage while the find bar is open: the
           // visitor has moved on, so every section is searchable and readable as usual again.
@@ -593,10 +596,21 @@ export function ScrollStage({ links }: Readonly<ScrollStageProps>) {
           unstack();
           delete root.dataset.on;
           ticks.forEach((tick) => tick.removeAttribute("data-active"));
+          endStageSection();
         };
       });
 
-      return () => mm.revert();
+      // Without the stage, the header's seal follows the section that fills the screen.
+      const stopWatching = watchSections(
+        Array.from(main.children).filter(
+          (el): el is HTMLElement => el instanceof HTMLElement && el.tagName === "SECTION"
+        )
+      );
+
+      return () => {
+        mm.revert();
+        stopWatching();
+      };
     },
     { dependencies: [] }
   );

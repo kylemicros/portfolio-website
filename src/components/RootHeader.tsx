@@ -8,12 +8,14 @@ import { MenuIcon } from "lucide-react";
 
 import { CurrentQuarter } from "@/components/CurrentQuarter";
 import { HeaderInk } from "@/components/motion/HeaderInk";
+import { linkSection, useCurrentSection } from "@/lib/current-section";
 import { withQuarter } from "@/lib/quarter";
 import { siteConfig } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 import { Emblem } from "./Emblem";
 import { Navbar } from "./Navbar";
+import { NavSeal } from "./NavSeal";
 import { SocialLinks } from "./SocialLinks";
 import { Button } from "./ui/button";
 import {
@@ -37,6 +39,7 @@ function sectionOnThisPage(href: string): HTMLElement | null {
 export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
   const { navLinks, socialLinks, contact, name, role } = siteConfig;
   const [open, setOpen] = useState(false);
+  const current = useCurrentSection();
 
   return (
     <HeaderInk {...props} className={cn("sticky top-0 z-50 w-full", className)}>
@@ -56,7 +59,7 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
           </div>
         </Link>
 
-        <Navbar links={navLinks} className="hidden lg:flex" />
+        <Navbar links={navLinks} current={current} className="hidden lg:flex" />
 
         <div className="hidden items-center gap-3 lg:flex">
           <SocialLinks links={socialLinks.slice(0, 3)} className="gap-3" />
@@ -91,29 +94,35 @@ export function RootHeader({ className, ...props }: Readonly<RootHeaderProps>) {
               </SheetHeader>
 
               <nav className="flex flex-col gap-2 px-6 py-6">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="rounded-2xl border border-transparent px-4 py-3 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-accent"
-                    onClick={(e) => {
-                      // A section of this page: close the sheet, then scroll to it. Anywhere else
-                      // (such as the home page's sections from another page): close the sheet and
-                      // let the link navigate.
-                      const element = sectionOnThisPage(link.href);
-                      setOpen(false);
-                      if (!element) return;
-                      e.preventDefault();
-                      // The page's own scroll-behavior applies: smooth, unless the visitor asked for
-                      // reduced motion.
-                      setTimeout(() => {
-                        element.scrollIntoView({ block: 'start' });
-                      }, 300);
-                    }}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                {navLinks.map((link) => {
+                  const isCurrent = current !== null && linkSection(link.href) === current;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      aria-current={isCurrent ? "location" : undefined}
+                      className="relative rounded-2xl border border-transparent px-4 py-3 text-base font-medium text-foreground transition-colors hover:border-border/70 hover:bg-accent"
+                      onClick={(e) => {
+                        // A section of this page: close the sheet, then scroll to it. Anywhere else
+                        // (such as the home page's sections from another page): close the sheet and
+                        // let the link navigate.
+                        const element = sectionOnThisPage(link.href);
+                        setOpen(false);
+                        if (!element) return;
+                        e.preventDefault();
+                        // The page's own scroll-behavior applies: smooth, unless the visitor asked for
+                        // reduced motion.
+                        setTimeout(() => {
+                          element.scrollIntoView({ block: 'start' });
+                        }, 300);
+                      }}
+                    >
+                      {/* In the row's own padding, beside its text, as in the header. */}
+                      <NavSeal on={isCurrent} className="top-1/2 left-px -translate-y-1/2" />
+                      {link.label}
+                    </Link>
+                  );
+                })}
               </nav>
 
               <div className="mt-auto flex flex-col gap-6 border-t border-border/60 px-6 py-6">
