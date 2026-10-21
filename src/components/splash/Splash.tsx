@@ -1,26 +1,33 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 
+import type { SlashHandle } from "@/components/motion/Slash";
+import { Slash } from "@/components/motion/Slash";
 import { gsap } from "@/lib/gsap";
-import { beginSplash, endSplash, markSplashCut } from "@/lib/splash";
+import type { SlashGeometry } from "@/lib/slash-geometry";
+import { computeSlash, splitPolygons } from "@/lib/slash-geometry";
+import { beginSplash, endSplash, isSplashShowing, markSplashSeen, releaseSplash } from "@/lib/splash";
 
 import type { QuoteArt, QuoteSetting } from "./quote-art";
 import { QUOTE_SIZES } from "./quote-sizes";
 
 interface Parts {
   root: HTMLDivElement;
-  /** The ground in one piece, until the cut. */
-  whole: HTMLDivElement;
-  /** The ground's two halves, either side of the cut. */
-  upper: HTMLDivElement;
+  /** What the slash cuts and the opening parts: the ground and the quote, with the slash on top. */
+  stage: HTMLDivElement;
+  /** The ground and the quote: split along the cut by the slash, then put back as it settles. */
+  content: HTMLDivElement;
+  /** Filled with a copy of the stage when the screen opens: the half below the cut. */
   lower: HTMLDivElement;
   quote: HTMLDivElement;
-  slash: SVGSVGElement;
 }
 
 interface Run {
+  /** The quote growing in and out. */
   timeline: gsap.core.Timeline | null;
+  /** The slash and the opening, built when the cut starts. */
+  cut: gsap.core.Timeline | null;
   /** When the splash mounted, on the clock of `performance.now()`. */
   startedAt: number;
   skipped: boolean;
@@ -28,22 +35,31 @@ interface Run {
   finish: () => void;
 }
 
-// Seconds: a dark hold, the quote fading in, held, fading out, the slash, then the halves parting.
+// Seconds: a dark hold, the quote fading in, held, fading out, then the slash, then the opening.
 const HOLD = 0.3;
-const FADE_IN = 0.7;
-const SHOWN = 1.4;
-const FADE_OUT = 0.4;
-const SLASH = 0.2;
-const PART = 0.5;
+const FADE_IN = 1.0;
+const SHOWN = 1.7;
+const FADE_OUT = 0.6;
+// The slash's glint starts this long before the quote has quite faded.
+const OVERLAP = 0.2;
+// The slash (the hero's own effect, about 1.4 s) plays a little slower than in the hero.
+const SLASH_PACE = 0.9;
+// The halves part once the slash has settled.
+const PART = 0.55;
 // The quote grows the whole time it is visible, as if the visitor walks up to it.
 const SCALE_FROM = 0.85;
 const SCALE_TO = 1.2;
-// A skip plays the slash and the parting this many times faster.
-const SKIP_SPEED = 2.5;
-// The cut runs from low left to high right: where it meets the left and right edges, as fractions
-// of the screen's height. The halves' clip paths below use the same numbers.
-const CUT_LEFT = 0.78;
-const CUT_RIGHT = 0.22;
+// A skip goes to the slash at once and plays it and the opening this many times faster.
+const SKIP_SPEED = 2;
+// The cut across the whole screen, as fractions of the stage: from low left to high right, bowed.
+// On narrow screens it starts a little further in, so the star before the swing shows whole.
+const CUT_FROM = { x: -0.04, y: 0.8 };
+const NARROW_CUT_FROM = { x: 0.05, y: 0.8 };
+const CUT_TO = { x: 1.04, y: 0.2 };
+const CUT_BOW = 0.1;
+// Below this width (px) the slash is the hero's small-screen one: no shake, fewer droplets.
+const SMALL_SCREEN = 640;
+const NARROW = `(max-width: ${SMALL_SCREEN - 1}px)`;
 // How far each half also slides along the cut, as a share of how far it moves away from it.
 const SLIDE = 0.25;
 // A page that took longer than this (ms) to start the splash has kept the visitor waiting enough.
@@ -52,8 +68,8 @@ const LATE = 3500;
 const QUOTE_WAIT = 1500;
 // The box each setting is fitted into at its resting scale, as fractions of the screen's width and
 // height; the classes below say the same. On phones and short screens the box is 0.8 of the width,
-// so the quote stays on screen up to the largest scale it reaches while fully opaque (about 1.14). Lines are only used on screens this short (px) or less,
-// where columns would be too small to read.
+// so the quote stays on screen up to the largest scale it reaches while fully opaque (about 1.14).
+// Lines are only used on screens this short (px) or less, where columns would be too small to read.
 const BOXES: Readonly<Record<QuoteSetting, { width: number; height: number; className: string }>> = {
   wide: { width: 0.76, height: 0.72, className: "h-[72svh] w-[76vw]" },
   narrow: { width: 0.8, height: 0.72, className: "h-[72svh] w-[80vw]" },
@@ -63,91 +79,107 @@ const SHORT_SCREEN = 500;
 // Keys that would scroll the page while the splash holds it still.
 const SCROLL_KEYS = new Set([" ", "PageUp", "PageDown", "Home", "End", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]);
 
-const GROUND = "absolute inset-0 bg-[#0a0204] bg-[radial-gradient(ellipse_75%_70%_at_50%_50%,transparent_50%,rgb(0_0_0/0.35))]";
+const GROUND = "bg-[#0a0204] bg-[radial-gradient(ellipse_75%_70%_at_50%_50%,transparent_50%,rgb(0_0_0/0.35))]";
 
-/** The cut across the screen, from its left edge to its right edge, in px. */
-function cutLine(): { from: { x: number; y: number }; to: { x: number; y: number } } {
-  const width = window.innerWidth;
-  const height = window.innerHeight;
-  return { from: { x: 0, y: CUT_LEFT * height }, to: { x: width, y: CUT_RIGHT * height } };
+function subscribeNarrow(onChange: () => void): () => void {
+  const query = window.matchMedia(NARROW);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+const isNarrow = () => window.matchMedia(NARROW).matches;
+const notNarrow = () => false;
+
+// Whether this page load plays the splash: the head script's mark, unless the page took too long to
+// get this far. Decided once, by whichever reads it first (the splash's layout effect, or React
+// rendering it), so the run and what is rendered always agree. On the server the splash is always
+// rendered (and hidden by CSS without the mark), so the page hydrates the same markup either way.
+let playing: boolean | undefined;
+const playsSplash = () => (playing ??= isSplashShowing() && performance.now() <= LATE);
+const onServer = () => true;
+const noChanges = () => () => {};
+
+/** Where the cut starts on this screen. */
+const cutFrom = (narrow: boolean) => (narrow ? NARROW_CUT_FROM : CUT_FROM);
+
+/** The cut on the stage, the same curve the slash draws. */
+function cutGeometry(stage: HTMLDivElement): SlashGeometry {
+  return computeSlash(
+    { width: stage.clientWidth, height: stage.clientHeight },
+    { from: cutFrom(isNarrow()), to: CUT_TO, bow: CUT_BOW, scaleWidth: window.innerWidth }
+  );
 }
 
 /** How far the upper half moves to clear the screen; the lower half moves the opposite way. */
-function partingOffset(): { x: number; y: number } {
-  const { from, to } = cutLine();
-  const length = Math.hypot(to.x - from.x, to.y - from.y);
-  const along = { x: (to.x - from.x) / length, y: (to.y - from.y) / length };
-  // The normal pointing to the upper half's side of the cut.
-  const away = { x: along.y, y: -along.x };
+function partingOffset(g: SlashGeometry, stage: HTMLDivElement): { x: number; y: number } {
+  const width = stage.clientWidth;
+  const height = stage.clientHeight;
   const corners = [
     { x: 0, y: 0 },
-    { x: to.x, y: 0 },
-    { x: 0, y: window.innerHeight },
-    { x: to.x, y: window.innerHeight },
+    { x: width, y: 0 },
+    { x: 0, y: height },
+    { x: width, y: height },
   ];
-  // The corner furthest from the cut, plus a little, so no edge of a half is left on screen.
-  const reach = Math.max(...corners.map((c) => Math.abs((c.x - from.x) * away.x + (c.y - from.y) * away.y))) + 24;
+  // The corner furthest from the cut's chord, plus the bow and a little more, so no edge of a half
+  // is left on screen. The normal points to the upper half's side of the cut.
+  const away = g.normal;
+  const bow = Math.hypot(g.c.x - (g.p0.x + g.p1.x) / 2, g.c.y - (g.p0.y + g.p1.y) / 2);
+  const reach =
+    Math.max(...corners.map((c) => Math.abs((c.x - g.p0.x) * away.x + (c.y - g.p0.y) * away.y))) + bow + 24;
   return {
-    x: away.x * reach + along.x * reach * SLIDE,
-    y: away.y * reach + along.y * reach * SLIDE,
+    x: away.x * reach + g.dir.x * reach * SLIDE,
+    y: away.y * reach + g.dir.y * reach * SLIDE,
   };
 }
 
-/** Lays the slash's lines along the cut, running a little past both edges of the screen. */
-function placeSlash(slash: SVGSVGElement): void {
-  const { from, to } = cutLine();
-  const overshoot = 0.05;
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  slash.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
-  for (const line of slash.querySelectorAll("line")) {
-    line.setAttribute("x1", String(from.x - dx * overshoot));
-    line.setAttribute("y1", String(from.y - dy * overshoot));
-    line.setAttribute("x2", String(to.x + dx * overshoot));
-    line.setAttribute("y2", String(to.y + dy * overshoot));
-  }
-}
-
-/** The slash, then the ground splits along it and the halves part. */
-function addCut(tl: gsap.core.Timeline, parts: Parts): void {
-  const { root, whole, upper, lower, slash } = parts;
-  const lines = slash.querySelectorAll("line");
+/**
+ * The cut: the hero's slash across the whole screen (glint, swing, flash, split and settle, ink
+ * droplets and the scar), then, once it has settled, the screen splits along the same curve and
+ * the halves part onto the page. Built when the cut starts, so it measures the screen as it is
+ * then, after any resize or turn of the phone during the quote.
+ */
+function startCut(parts: Parts, slash: SlashHandle, speed: number, onEnd: () => void): gsap.core.Timeline {
+  const { root, stage, content, lower } = parts;
   const offset = { x: 0, y: 0 };
-  tl.addLabel("cut")
-    .call(() => placeSlash(slash))
-    .set(slash, { autoAlpha: 1 })
-    .fromTo(
-      lines,
-      { strokeDashoffset: 1 },
-      {
-        strokeDashoffset: 0,
-        duration: SLASH,
-        ease: "power2.in",
-        onStart: () => {
-          markSplashCut();
-          Object.assign(offset, partingOffset());
-        },
-      }
+  markSplashSeen();
+  const tl = gsap.timeline({ onComplete: onEnd });
+  tl.add(slash.timeline({ splitTarget: content, small: window.innerWidth < SMALL_SCREEN }).timeScale(SLASH_PACE))
+    .addLabel("open")
+    .call(
+      () => {
+        const g = cutGeometry(stage);
+        const { above, below } = splitPolygons(g);
+        // The half below the cut is a copy of the stage, scar and all; its ids are dropped so the
+        // page keeps one of each.
+        const copies = [...stage.children].map((child) => child.cloneNode(true));
+        for (const copy of copies) {
+          if (!(copy instanceof Element)) continue;
+          copy.removeAttribute("id");
+          copy.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+        }
+        lower.replaceChildren(...copies);
+        stage.style.clipPath = above;
+        lower.style.clipPath = below;
+        Object.assign(offset, partingOffset(g, stage));
+        // The page can be clicked through the gap.
+        root.style.pointerEvents = "none";
+      },
+      undefined,
+      "open"
     )
-    .addLabel("part")
-    // The halves take over from the whole ground, and the page can be clicked through the gap.
-    .set(whole, { autoAlpha: 0 })
-    .set([upper, lower], { autoAlpha: 1 })
-    .set(root, { pointerEvents: "none" })
-    .to(slash, { autoAlpha: 0, duration: 0.15, ease: "power1.out" }, "part")
-    .to(upper, { x: () => offset.x, y: () => offset.y, duration: PART, ease: "power2.in" }, "part")
-    .to(lower, { x: () => -offset.x, y: () => -offset.y, duration: PART, ease: "power2.in" }, "part");
+    .set(lower, { autoAlpha: 1 }, "open")
+    .to(stage, { x: () => offset.x, y: () => offset.y, duration: PART, ease: "power2.in" }, "open")
+    .to(lower, { x: () => -offset.x, y: () => -offset.y, duration: PART, ease: "power2.in" }, "open");
+  return tl.timeScale(speed);
 }
 
-/** The whole splash: the quote grows in and out, then the cut. */
-function playSplash(parts: Parts, hold: number, onEnd: () => void): gsap.core.Timeline {
-  const { quote } = parts;
-  const tl = gsap.timeline({ onComplete: onEnd });
+/** The quote grows in and out; `onCut` starts the cut just before it has faded. */
+function playQuote(quote: HTMLDivElement, hold: number, onCut: () => void): gsap.core.Timeline {
+  const tl = gsap.timeline();
   const visible = FADE_IN + SHOWN + FADE_OUT;
   tl.fromTo(quote, { scale: SCALE_FROM }, { scale: SCALE_TO, duration: visible, ease: "none" }, hold)
     .fromTo(quote, { autoAlpha: 0 }, { autoAlpha: 1, duration: FADE_IN, ease: "power1.out" }, hold)
-    .to(quote, { autoAlpha: 0, duration: FADE_OUT, ease: "power1.in" }, hold + FADE_IN + SHOWN);
-  addCut(tl, parts);
+    .to(quote, { autoAlpha: 0, duration: FADE_OUT, ease: "power1.in" }, hold + FADE_IN + SHOWN)
+    .call(onCut, undefined, hold + visible - OVERLAP);
   return tl;
 }
 
@@ -205,44 +237,47 @@ function Quote({ art }: Readonly<{ art: QuoteArt }>) {
 function findParts(root: HTMLDivElement | null): Parts | null {
   if (!root) return null;
   const find = (name: string) => root.querySelector(`[data-splash-part="${name}"]`);
-  const whole = find("whole");
-  const upper = find("upper");
+  const stage = find("stage");
+  const content = find("content");
   const lower = find("lower");
   const quote = find("quote");
-  const slash = find("slash");
   if (
-    !(whole instanceof HTMLDivElement) ||
-    !(upper instanceof HTMLDivElement) ||
+    !(stage instanceof HTMLDivElement) ||
+    !(content instanceof HTMLDivElement) ||
     !(lower instanceof HTMLDivElement) ||
-    !(quote instanceof HTMLDivElement) ||
-    !(slash instanceof SVGSVGElement)
+    !(quote instanceof HTMLDivElement)
   ) {
     return null;
   }
-  return { root, whole, upper, lower, quote, slash };
+  return { root, stage, content, lower, quote };
 }
 
 /**
- * The opening splash, once per browser session: Esdeath's line grows in out of the dark, fades,
- * and a crimson slash cuts the screen open onto the page. Any key, click, tap or wheel skips to the
- * cut. The overlay is hidden from assistive technology, takes no focus and holds the page still
- * while it plays; the page underneath is in place the whole time. Whether it plays is decided
- * before the first paint (`@/lib/splash`): without that mark it is never shown. The quote's
- * outlines load in their own chunk, only when the splash plays.
+ * The opening splash, once per browser session: Esdeath's line grows in out of the dark and fades,
+ * the hero's slash cuts across the whole screen, and once it has settled the screen opens along the
+ * cut onto the page. Any key, click, tap or wheel skips to the cut. The overlay is hidden from
+ * assistive technology, takes no focus and holds the page still while it plays; the page
+ * underneath is in place the whole time. Whether it plays is decided before the first paint
+ * (`@/lib/splash`): without that mark it is never shown. The quote's outlines load in their own
+ * chunk, only when the splash plays.
  */
 export function Splash() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const slashRef = useRef<SlashHandle>(null);
   const runRef = useRef<Run | null>(null);
   const [art, setArt] = useState<QuoteArt | null>(null);
   const [ended, setEnded] = useState(false);
+  const narrow = useSyncExternalStore(subscribeNarrow, isNarrow, notNarrow);
+  const plays = useSyncExternalStore(noChanges, playsSplash, onServer);
 
   // Decide, hold the page still and load the quote.
   useLayoutEffect(() => {
-    if (!beginSplash()) return;
-    if (performance.now() > LATE) {
-      endSplash();
+    // A page that arrives too late does not play it: the mark is dropped and the page starts.
+    if (!playsSplash()) {
+      if (isSplashShowing()) endSplash();
       return;
     }
+    if (!beginSplash()) return;
 
     const onKey = (event: KeyboardEvent) => {
       if (SCROLL_KEYS.has(event.key)) event.preventDefault();
@@ -262,10 +297,12 @@ export function Splash() {
 
     const run: Run = {
       timeline: null,
+      cut: null,
       startedAt: performance.now(),
       skipped: false,
       finish: () => {
         run.timeline = null;
+        run.cut = null;
         detach();
         endSplash();
         setEnded(true);
@@ -278,21 +315,19 @@ export function Splash() {
     function skip() {
       if (run.skipped) return;
       run.skipped = true;
-      const { timeline } = run;
-      if (timeline && timeline.time() >= timeline.labels.cut) {
-        timeline.timeScale(SKIP_SPEED);
+      if (run.cut) {
+        run.cut.timeScale(SKIP_SPEED);
         return;
       }
-      timeline?.kill();
+      run.timeline?.kill();
       const parts = findParts(rootRef.current);
-      if (!parts) {
+      const slash = slashRef.current;
+      if (!parts || !slash) {
         run.finish();
         return;
       }
-      gsap.to(parts.quote, { autoAlpha: 0, duration: 0.1, ease: "power1.out" });
-      const tl = gsap.timeline({ onComplete: run.finish });
-      addCut(tl, parts);
-      run.timeline = tl.timeScale(SKIP_SPEED);
+      gsap.to(parts.quote, { autoAlpha: 0, duration: 0.15, ease: "power1.out" });
+      run.cut = startCut(parts, slash, SKIP_SPEED, run.finish);
     }
 
     window.addEventListener("keydown", onKey, { capture: true });
@@ -320,7 +355,11 @@ export function Splash() {
       window.clearTimeout(giveUp);
       detach();
       run.timeline?.kill();
+      run.cut?.kill();
       runRef.current = null;
+      // Taken down before it finished: the page is never left marked, with the hero, the sky and
+      // the scrolling still waiting for it.
+      releaseSplash();
     };
   }, []);
 
@@ -328,31 +367,29 @@ export function Splash() {
   useLayoutEffect(() => {
     const run = runRef.current;
     const parts = findParts(rootRef.current);
-    if (!art || !run || !parts || run.timeline || run.skipped) return;
+    const slash = slashRef.current;
+    if (!art || !run || !parts || !slash || run.timeline || run.skipped) return;
     const waited = (performance.now() - run.startedAt) / 1000;
-    run.timeline = playSplash(parts, Math.max(0, HOLD - waited), run.finish);
+    run.timeline = playQuote(parts.quote, Math.max(0, HOLD - waited), () => {
+      run.cut ??= startCut(parts, slash, 1, run.finish);
+    });
   }, [art]);
 
-  if (ended) return null;
+  // Not playing, or over: nothing of it stays mounted, the slash's resize watchers included.
+  if (ended || !plays) return null;
 
   return (
     <div ref={rootRef} data-splash-screen="" aria-hidden="true" className="fixed inset-0 z-60 hidden overflow-hidden">
-      <div data-splash-part="whole" className={GROUND} />
-      <div data-splash-part="upper" className={`${GROUND} invisible [clip-path:polygon(0_0,100%_0,100%_22%,0_78%)]`} />
-      <div data-splash-part="lower" className={`${GROUND} invisible [clip-path:polygon(0_78%,100%_22%,100%_100%,0_100%)]`} />
-      <div className="absolute inset-0 grid place-items-center">
-        <div data-splash-part="quote" className="invisible will-change-[transform,opacity]">
-          {art && <Quote art={art} />}
+      {/* A little larger than the screen, so the slash's shake never shows an edge. */}
+      <div data-splash-part="stage" className="absolute -inset-2">
+        <div data-splash-part="content" className={`absolute inset-0 grid place-items-center ${GROUND}`}>
+          <div data-splash-part="quote" className="invisible will-change-[transform,opacity]">
+            {art && <Quote art={art} />}
+          </div>
         </div>
+        <Slash slashRef={slashRef} from={cutFrom(narrow)} to={CUT_TO} bow={CUT_BOW} />
       </div>
-      <svg
-        data-splash-part="slash"
-        focusable="false"
-        className="invisible absolute inset-0 size-full drop-shadow-[0_0_6px_var(--blade-hot)]"
-      >
-        <line pathLength={1} strokeDasharray="1 1" strokeWidth={6} className="stroke-blade-hot" />
-        <line pathLength={1} strokeDasharray="1 1" strokeWidth={1.5} className="stroke-paper" />
-      </svg>
+      <div data-splash-part="lower" className="invisible absolute -inset-2" />
     </div>
   );
 }

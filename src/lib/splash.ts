@@ -12,9 +12,6 @@ const RUNNING = "run";
 const END_EVENT = "splash-end";
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
-/** Whether the splash's slash has cut the screen open on this page load. */
-let cutPlayed = false;
-
 /**
  * The head script: marks <html> when JavaScript runs, motion is allowed, session storage works and
  * the splash has not been seen this session. Any error (storage blocked) shows nothing.
@@ -62,30 +59,31 @@ export function markSplashSeen(): void {
   }
 }
 
-/** Records that the splash's slash has played: the splash counts as seen, and the hero skips its own slash. */
-export function markSplashCut(): void {
-  cutPlayed = true;
-  markSplashSeen();
-}
-
 /** Ends the splash: the page is unmarked and whatever waited for it starts. */
 export function endSplash(): void {
   markSplashSeen();
+  releaseSplash();
+}
+
+/**
+ * Unmarks the page and starts whatever waited for the splash, without recording it as seen: for a
+ * splash taken down before it could finish.
+ */
+export function releaseSplash(): void {
   if (!isSplashShowing()) return;
   document.documentElement.removeAttribute(ATTRIBUTE);
   window.dispatchEvent(new Event(END_EVENT));
 }
 
 /**
- * Runs `start` once the splash has ended, or straight away when there is none. `start` is told
- * whether the splash's slash played on this page load. Returns a function that cancels the wait.
+ * Runs `start` once the splash has ended, or straight away when there is none. Returns a function
+ * that cancels the wait.
  */
-export function whenSplashEnds(start: (afterCut: boolean) => void): () => void {
+export function whenSplashEnds(start: () => void): () => void {
   if (!isSplashShowing()) {
-    start(cutPlayed);
+    start();
     return () => {};
   }
-  const onEnd = () => start(cutPlayed);
-  window.addEventListener(END_EVENT, onEnd, { once: true });
-  return () => window.removeEventListener(END_EVENT, onEnd);
+  window.addEventListener(END_EVENT, start, { once: true });
+  return () => window.removeEventListener(END_EVENT, start);
 }
