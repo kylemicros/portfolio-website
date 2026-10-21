@@ -224,6 +224,38 @@ html[data-splash="run"] [data-splash-screen] {
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+/* The seal on the current section's link (NavSeal.tsx), with motion allowed: it lands a little
+   large and settles in 0.2 s, and as it lands a faint ink spread grows out from under it and fades.
+   The spread holds no frame during its delay (`forwards`, not `both`), so it shows only from the landing. */
+@theme {
+  --animate-seal-press: seal-press 200ms cubic-bezier(0.3, 0.7, 0.4, 1) both;
+  --animate-seal-spread: seal-spread 450ms 120ms ease-out forwards;
+
+  @keyframes seal-press {
+    from {
+      scale: 1.6;
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    to {
+      scale: 1;
+      opacity: 1;
+    }
+  }
+  @keyframes seal-spread {
+    from {
+      scale: 1;
+      opacity: 0.6;
+    }
+    to {
+      scale: 2.6;
+      opacity: 0;
+    }
+  }
+}
+
 /* The page's shared width: content up to 1440px, centred, with side gutters that widen with the
    screen (24px, 32px from `sm`, 48px from `lg`, 64px from `2xl`). The gutter is a variable, so
    anything placed against the content's edge can use it. */
