@@ -1,4 +1,4 @@
-import { moonAt } from "@/lib/moon-arc";
+import { GLOW_REACH, moonAt, skyNow, type MoonMotion } from "@/lib/moon-arc";
 
 /**
  * The night sky's WebGL layer: one full-screen fragment shader that draws the sky's gradient,
@@ -14,7 +14,7 @@ import { moonAt } from "@/lib/moon-arc";
 const RESOLUTION = 0.55;
 // About 30 frames a second: the drift and twinkle are slow, so more frames buy nothing.
 const FRAME_INTERVAL = 1000 / 30;
-// How quickly the moon catches up with the scroll position: the share of the gap closed per second
+// How quickly the clouds catch up with the scroll position: the share of the gap closed per second
 // is 1 - e^-EASE_RATE.
 const EASE_RATE = 3.2;
 // The time shown when motion is reduced: a still frame with the stars mid-twinkle.
@@ -137,10 +137,13 @@ void main() {
   float stars = starLayer(sf, 11.0, uTime, 0.975) + starLayer(sf + 37.0, 27.0, uTime * 0.7, 0.93) * 1.3;
   col += vec3(1.0, 0.9, 0.86) * stars * smoothstep(0.35, 0.75, y) * 0.8;
 
-  // The moon: a crimson disc with a softer rim, darker blood-red patches and a red glow.
+  // The moon: a crimson disc with a softer rim, darker blood-red patches and a red glow. The glow
+  // fades out over its last radius to nothing at GLOW_REACH radii, so the loop knows when the
+  // moon has wholly left the sky.
   vec2 d = (frag - uMoon.xy) / uMoon.z;
   float r = length(d);
-  col += vec3(0.91, 0.28, 0.23) * exp(-max(r - 1.0, 0.0) * 3.2) * 0.45 + vec3(0.6, 0.06, 0.08) * exp(-max(r - 1.0, 0.0) * 0.7) * 0.25;
+  float glow = 1.0 - smoothstep(${(GLOW_REACH - 1).toFixed(1)}, ${GLOW_REACH.toFixed(1)}, r);
+  col += (vec3(0.91, 0.28, 0.23) * exp(-max(r - 1.0, 0.0) * 3.2) * 0.45 + vec3(0.6, 0.06, 0.08) * exp(-max(r - 1.0, 0.0) * 0.7) * 0.25) * glow;
   if (r < 1.02) {
     vec3 core = vec3(0.702, 0.071, 0.106), rim = vec3(0.91, 0.278, 0.227);
     vec3 patchColor = vec3(0.45, 0.03, 0.06), deepPatch = vec3(0.30, 0.01, 0.04);
@@ -181,15 +184,19 @@ export interface SkyOptions {
   /** The canvas's size in CSS pixels. */
   width: number;
   height: number;
-  /** The scroll progress when the sky starts, so the first frame already has the moon in place. */
+  /** The scroll progress when the sky starts, so the first frame already has the clouds in place. */
   progress: number;
+  /** The moon's clock and the visitor's hold on it (see `moon-arc.ts`). */
+  motion: MoonMotion;
   reducedMotion: boolean;
 }
 
 export interface SkyHandle {
-  /** The page's scroll progress, 0 to 1. The moon eases toward it. */
+  /** The page's scroll progress, 0 to 1. The clouds' parallax eases toward it. */
   setProgress: (progress: number) => void;
-  /** Still frame, moved only by scrolling (true), or drifting and twinkling (false). */
+  /** The moon's clock and the visitor's hold on it, whenever either changes. */
+  setMoon: (motion: MoonMotion) => void;
+  /** Still frame, moved only by the visitor dragging the moon (true), or moving (false). */
   setReducedMotion: (reduced: boolean) => void;
   /** The canvas's new size in CSS pixels. */
   setSize: (width: number, height: number) => void;
@@ -303,7 +310,8 @@ function loadClouds(): Promise<ImageBitmap[]> {
 
 /**
  * Starts the sky on the canvas, in the page or in a worker. Returns null when WebGL is not
- * available. The caller reports size, visibility, scroll progress and motion preference.
+ * available. The caller reports size, visibility, scroll progress, the moon's motion and the
+ * motion preference.
  */
 export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyCallbacks): SkyHandle | null {
   const context = webglContext(canvas);
@@ -316,6 +324,7 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
   let cssWidth = options.width;
   let cssHeight = options.height;
   let reduced = options.reducedMotion;
+  let motion = options.motion;
   let hidden = false;
   let target = options.progress;
   let eased = options.progress;
@@ -391,15 +400,15 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
     const cloudsReady = cloudImages.length > 0 && texturesUploaded === cloudImages.length;
     if (cloudsReady) cloudFade = reduced ? 1 : Math.min(1, cloudFade + dt / CLOUD_FADE);
 
-    // The arc is worked out in CSS pixels, then scaled to the canvas, whose y runs upward.
+    // The moon is placed in CSS pixels, then scaled to the canvas, whose y runs upward.
     const scale = canvas.width / Math.max(1, cssWidth);
-    const moon = moonAt(eased, cssWidth, cssHeight);
+    const moon = moonAt(motion, skyNow(), cssWidth, cssHeight, reduced);
     const time = reduced ? STILL_TIME : STILL_TIME + elapsed;
     gl.uniform2f(program.resolution, canvas.width, canvas.height);
     gl.uniform1f(program.time, time);
     gl.uniform3f(program.moon, moon.x * scale, canvas.height - moon.y * scale, moon.r * scale);
     gl.uniform1f(program.cloudTime, time);
-    // With reduced motion the clouds hold still; only the moon follows the scroll.
+    // With reduced motion the clouds hold still, whatever the scroll.
     gl.uniform1f(program.cloudShift, reduced ? 0 : eased);
     gl.uniform1f(program.cloudAlpha, cloudsReady ? cloudFade : 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
@@ -419,7 +428,7 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
     }
     lastDraw = now;
     draw(now);
-    // A still sky draws once each time scrolling moves the moon, and until its clouds are in.
+    // A still sky draws once each time the visitor moves the moon, and until its clouds are in.
     const settling = texturesUploaded < cloudImages.length;
     if (!reduced || settling) frame = nextFrame(loop);
   };
@@ -504,7 +513,11 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
 
   return {
     setProgress(progress) {
+      // A moving sky draws every frame anyway, and a still one ignores the scroll.
       target = progress;
+    },
+    setMoon(next) {
+      motion = next;
       schedule();
     },
     setReducedMotion(next) {
