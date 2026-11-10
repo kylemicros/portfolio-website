@@ -13,7 +13,6 @@ type SkyState = "waiting" | "ready" | "fallback";
 
 /** What the page tells the sky, wherever it runs. */
 interface SkyDriver {
-  setProgress: (progress: number) => void;
   setMoon: (motion: MoonMotion) => void;
   setReducedMotion: (reduced: boolean) => void;
   setSize: (width: number, height: number) => void;
@@ -23,7 +22,6 @@ interface SkyDriver {
 
 interface DriverOptions {
   canvas: HTMLCanvasElement;
-  progress: number;
   motion: MoonMotion;
   reducedMotion: boolean;
   onReady: () => void;
@@ -46,12 +44,6 @@ const IDLE_TIMEOUT = 2500;
 const FINE_POINTER = "(pointer: fine)";
 // What a press on the moon must not land on for the drag to start.
 const CONTENT = "a, button, input, select, textarea, label, summary, img, svg, video, canvas, iframe, [role], [tabindex], [contenteditable]";
-
-/** The page's scroll progress, from 0 at the top to 1 at the furthest it can scroll. */
-function scrollProgress(): number {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-}
 
 /** A computed colour with no opacity, such as `rgba(0, 0, 0, 0)` or `oklab(0 0 0 / 0)`. */
 function isClear(colour: string): boolean {
@@ -199,7 +191,7 @@ function dragMoon(grip: MoonGrip): () => void {
 }
 
 /** Hands the canvas to a worker, so WebGL never runs on the page's main thread. */
-function workerDriver({ canvas, progress, motion, reducedMotion, onReady, onFallback }: DriverOptions): SkyDriver {
+function workerDriver({ canvas, motion, reducedMotion, onReady, onFallback }: DriverOptions): SkyDriver {
   const worker = new Worker(new URL("./sky.worker.ts", import.meta.url), { type: "module" });
   const send = (command: SkyCommand, transfer: Transferable[] = []) => worker.postMessage(command, transfer);
   worker.addEventListener("message", (message: MessageEvent<unknown>) => {
@@ -217,14 +209,12 @@ function workerDriver({ canvas, progress, motion, reducedMotion, onReady, onFall
       canvas: offscreen,
       width: canvas.clientWidth,
       height: canvas.clientHeight,
-      progress,
       motion,
       reducedMotion,
     },
     [offscreen]
   );
   return {
-    setProgress: (value) => send({ type: "progress", value }),
     setMoon: (next) => send({ type: "moon", motion: next }),
     setReducedMotion: (value) => send({ type: "reducedMotion", value }),
     setSize: (width, height) => send({ type: "size", width, height }),
@@ -234,11 +224,11 @@ function workerDriver({ canvas, progress, motion, reducedMotion, onReady, onFall
 }
 
 /** Runs the sky in the page, for browsers that cannot hand a canvas to a worker. */
-async function pageDriver({ canvas, progress, motion, reducedMotion, onReady, onFallback }: DriverOptions): Promise<SkyDriver | null> {
+async function pageDriver({ canvas, motion, reducedMotion, onReady, onFallback }: DriverOptions): Promise<SkyDriver | null> {
   const { startSky } = await import("./sky-renderer");
   return startSky(
     canvas,
-    { width: canvas.clientWidth, height: canvas.clientHeight, progress, motion, reducedMotion },
+    { width: canvas.clientWidth, height: canvas.clientHeight, motion, reducedMotion },
     { onReady, onFallback }
   );
 }
@@ -289,7 +279,6 @@ export function SkyLayers() {
       height = canvas.clientHeight;
       const options: DriverOptions = {
         canvas,
-        progress: scrollProgress(),
         motion: moon,
         reducedMotion: motion.matches,
         onReady: () => {
@@ -316,7 +305,7 @@ export function SkyLayers() {
       } else {
         driver = await pageDriver(options);
       }
-      const { ScrollTrigger, prepareScrollTriggers } = await import("@/lib/gsap");
+      const { prepareScrollTriggers } = await import("@/lib/gsap");
       if (cancelled || !driver) {
         driver?.destroy();
         return;
@@ -325,16 +314,10 @@ export function SkyLayers() {
       // Anything that moved the moon before the sky was ready to hear it.
       driver.setMoon(moon);
 
-      // Progress through the whole page, from the top to the furthest it can scroll, for the
-      // clouds' parallax.
+      // The clouds drift on time alone and never follow the scroll. The page-wide set-up stays:
+      // on a page with no other scroll effects (the 404 page) it is what turns on the page's
+      // smooth scrolling once it has loaded.
       prepareScrollTriggers();
-      const trigger = ScrollTrigger.create({
-        start: 0,
-        end: "max",
-        onUpdate: (self) => driver.setProgress(self.progress),
-        onRefresh: (self) => driver.setProgress(self.progress),
-      });
-      driver.setProgress(trigger.progress);
 
       const resize = new ResizeObserver(() => {
         width = canvas.clientWidth;
@@ -369,7 +352,6 @@ export function SkyLayers() {
       onPointerChange();
 
       stopTracking = () => {
-        trigger.kill();
         resize.disconnect();
         document.removeEventListener("visibilitychange", onVisibility);
         fine.removeEventListener("change", onPointerChange);

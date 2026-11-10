@@ -14,9 +14,6 @@ import { GLOW_REACH, moonAt, skyNow, type MoonMotion } from "@/lib/moon-arc";
 const RESOLUTION = 0.55;
 // About 30 frames a second: the drift and twinkle are slow, so more frames buy nothing.
 const FRAME_INTERVAL = 1000 / 30;
-// How quickly the clouds catch up with the scroll position: the share of the gap closed per second
-// is 1 - e^-EASE_RATE.
-const EASE_RATE = 3.2;
 // The time shown when motion is reduced: a still frame with the stars mid-twinkle.
 const STILL_TIME = 12;
 // Seconds the clouds take to fade in once they have loaded.
@@ -29,22 +26,18 @@ interface CloudLayer {
   /** Height, as a share of the sky's height. */
   height: number;
   opacity: number;
-  /** Seconds to drift one image width to the left. */
+  /** Seconds to drift one image width to the left. The clouds move on time alone, not with the scroll. */
   drift: number;
-  /** How far the layer slides left over the whole page, as a share of the sky's width. */
-  parallax: number;
-  /** How far it rises over the whole page, as a share of the sky's height. */
-  lift: number;
 }
 
 // Pre-tinted from GOBI Studio's hand-painted clouds (credited in public/sky/CREDITS.txt). Back to
 // front: scattered far clouds, a bank, the nearest bank, then low wisps. All sit in the lower half
 // of the sky, clear of the moon's climb and of most headings. Each image tiles sideways.
 const CLOUDS: readonly CloudLayer[] = [
-  { src: "/sky/clouds-3.webp", top: 0.44, height: 0.26, opacity: 0.45, drift: 150, parallax: 0.08, lift: 0.03 },
-  { src: "/sky/clouds-2.webp", top: 0.62, height: 0.36, opacity: 0.7, drift: 200, parallax: 0.14, lift: 0.05 },
-  { src: "/sky/clouds-1.webp", top: 0.72, height: 0.4, opacity: 0.85, drift: 95, parallax: 0.22, lift: 0.07 },
-  { src: "/sky/clouds-4.webp", top: 0.88, height: 0.2, opacity: 0.55, drift: 70, parallax: 0.3, lift: 0.09 },
+  { src: "/sky/clouds-3.webp", top: 0.44, height: 0.26, opacity: 0.45, drift: 150 },
+  { src: "/sky/clouds-2.webp", top: 0.62, height: 0.36, opacity: 0.7, drift: 200 },
+  { src: "/sky/clouds-1.webp", top: 0.72, height: 0.4, opacity: 0.85, drift: 95 },
+  { src: "/sky/clouds-4.webp", top: 0.88, height: 0.2, opacity: 0.55, drift: 70 },
 ];
 
 const VERTEX_SHADER = `
@@ -68,11 +61,10 @@ uniform sampler2D uCloud0;
 uniform sampler2D uCloud1;
 uniform sampler2D uCloud2;
 uniform sampler2D uCloud3;
-// Per layer: top, height, image aspect, opacity; then seconds per image width, parallax, lift.
+// Per layer: top, height, image aspect, opacity; then seconds per image width.
 uniform vec4 uLayer[4];
-uniform vec4 uMotion[4];
+uniform float uDrift[4];
 uniform float uCloudTime;
-uniform float uCloudShift;
 uniform float uCloudAlpha;
 
 float hash(vec2 p) {
@@ -107,12 +99,12 @@ float starLayer(vec2 frag, float cell, float t, float density) {
 }
 
 // One cloud layer over the colour so far. "below" is measured down from the top of the sky.
-vec3 cloud(vec3 col, sampler2D tex, vec4 layer, vec4 motion, float x, float below) {
+vec3 cloud(vec3 col, sampler2D tex, vec4 layer, float drift, float x, float below) {
   float h = layer.y * uResolution.y;
-  float v = (below - (layer.x - motion.z * uCloudShift) * uResolution.y) / h;
+  float v = (below - layer.x * uResolution.y) / h;
   if (v < 0.0 || v > 1.0) return col;
   float tile = h * layer.z;
-  float u = fract((x + uCloudTime * tile / motion.x + uCloudShift * motion.y * uResolution.x) / tile);
+  float u = fract((x + uCloudTime * tile / drift) / tile);
   // The images are uploaded with premultiplied alpha.
   vec4 c = texture2D(tex, vec2(u, v));
   float k = layer.w * uCloudAlpha;
@@ -159,10 +151,10 @@ void main() {
   // The clouds, in front of the moon, back to front.
   if (uCloudAlpha > 0.0) {
     float below = uResolution.y - frag.y;
-    col = cloud(col, uCloud0, uLayer[0], uMotion[0], frag.x, below);
-    col = cloud(col, uCloud1, uLayer[1], uMotion[1], frag.x, below);
-    col = cloud(col, uCloud2, uLayer[2], uMotion[2], frag.x, below);
-    col = cloud(col, uCloud3, uLayer[3], uMotion[3], frag.x, below);
+    col = cloud(col, uCloud0, uLayer[0], uDrift[0], frag.x, below);
+    col = cloud(col, uCloud1, uLayer[1], uDrift[1], frag.x, below);
+    col = cloud(col, uCloud2, uLayer[2], uDrift[2], frag.x, below);
+    col = cloud(col, uCloud3, uLayer[3], uDrift[3], frag.x, below);
   }
 
   // A slight vignette.
@@ -184,16 +176,12 @@ export interface SkyOptions {
   /** The canvas's size in CSS pixels. */
   width: number;
   height: number;
-  /** The scroll progress when the sky starts, so the first frame already has the clouds in place. */
-  progress: number;
   /** The moon's clock and the visitor's hold on it (see `moon-arc.ts`). */
   motion: MoonMotion;
   reducedMotion: boolean;
 }
 
 export interface SkyHandle {
-  /** The page's scroll progress, 0 to 1. The clouds' parallax eases toward it. */
-  setProgress: (progress: number) => void;
   /** The moon's clock and the visitor's hold on it, whenever either changes. */
   setMoon: (motion: MoonMotion) => void;
   /** Still frame, moved only by the visitor dragging the moon (true), or moving (false). */
@@ -214,7 +202,6 @@ interface Program {
   time: WebGLUniformLocation | null;
   moon: WebGLUniformLocation | null;
   cloudTime: WebGLUniformLocation | null;
-  cloudShift: WebGLUniformLocation | null;
   cloudAlpha: WebGLUniformLocation | null;
 }
 
@@ -310,8 +297,7 @@ function loadClouds(): Promise<ImageBitmap[]> {
 
 /**
  * Starts the sky on the canvas, in the page or in a worker. Returns null when WebGL is not
- * available. The caller reports size, visibility, scroll progress, the moon's motion and the
- * motion preference.
+ * available. The caller reports size, visibility, the moon's motion and the motion preference.
  */
 export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyCallbacks): SkyHandle | null {
   const context = webglContext(canvas);
@@ -326,10 +312,6 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
   let reduced = options.reducedMotion;
   let motion = options.motion;
   let hidden = false;
-  let target = options.progress;
-  let eased = options.progress;
-  // The first frame places the moon where it belongs, rather than sweeping it there.
-  let placed = false;
   let program: Program | null = null;
   let builtProgram: WebGLProgram | null = null;
   let cancelBuild = () => {};
@@ -382,7 +364,7 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
       image.width / Math.max(1, image.height),
       cloud.opacity
     );
-    gl.uniform4f(gl.getUniformLocation(built, `uMotion[${index}]`), cloud.drift, cloud.parallax, cloud.lift, 0);
+    gl.uniform1f(gl.getUniformLocation(built, `uDrift[${index}]`), cloud.drift);
     texturesUploaded += 1;
   };
 
@@ -391,10 +373,6 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
     const dt = lastTime ? Math.min(0.1, (now - lastTime) / 1000) : 0;
     lastTime = now;
     if (!reduced) elapsed += dt;
-
-    if (reduced || !placed) eased = target;
-    else eased += (target - eased) * (1 - Math.exp(-EASE_RATE * dt));
-    placed = true;
 
     if (texturesUploaded < cloudImages.length) uploadNextCloud(builtProgram);
     const cloudsReady = cloudImages.length > 0 && texturesUploaded === cloudImages.length;
@@ -407,9 +385,8 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
     gl.uniform2f(program.resolution, canvas.width, canvas.height);
     gl.uniform1f(program.time, time);
     gl.uniform3f(program.moon, moon.x * scale, canvas.height - moon.y * scale, moon.r * scale);
+    // With reduced motion the clouds hold still (`time` is fixed).
     gl.uniform1f(program.cloudTime, time);
-    // With reduced motion the clouds hold still, whatever the scroll.
-    gl.uniform1f(program.cloudShift, reduced ? 0 : eased);
     gl.uniform1f(program.cloudAlpha, cloudsReady ? cloudFade : 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -478,7 +455,6 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
         time: gl.getUniformLocation(built, "uTime"),
         moon: gl.getUniformLocation(built, "uMoon"),
         cloudTime: gl.getUniformLocation(built, "uCloudTime"),
-        cloudShift: gl.getUniformLocation(built, "uCloudShift"),
         cloudAlpha: gl.getUniformLocation(built, "uCloudAlpha"),
       };
       resize();
@@ -503,7 +479,6 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
 
   const onRestored = () => {
     lost = false;
-    placed = false;
     setUp();
   };
 
@@ -512,17 +487,12 @@ export function startSky(canvas: SkyCanvas, options: SkyOptions, callbacks: SkyC
   setUp();
 
   return {
-    setProgress(progress) {
-      // A moving sky draws every frame anyway, and a still one ignores the scroll.
-      target = progress;
-    },
     setMoon(next) {
       motion = next;
       schedule();
     },
     setReducedMotion(next) {
       reduced = next;
-      placed = false;
       lastTime = 0;
       schedule();
     },

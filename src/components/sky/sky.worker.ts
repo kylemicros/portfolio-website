@@ -3,8 +3,8 @@ import { startSky, type SkyHandle } from "./sky-renderer";
 
 /**
  * Runs the night sky off the page's main thread, on the canvas the page hands over. The page
- * reports scroll progress, the moon's motion, size, visibility and motion preference; the worker
- * reports back when the sky is up, or when the page should fall back to its CSS sky.
+ * reports the moon's motion, size, visibility and motion preference; the worker reports back when
+ * the sky is up, or when the page should fall back to its CSS sky.
  */
 
 let sky: SkyHandle | null = null;
@@ -22,15 +22,11 @@ self.addEventListener("message", (message: MessageEvent<unknown>) => {
         {
           width: command.width,
           height: command.height,
-          progress: command.progress,
           motion: command.motion,
           reducedMotion: command.reducedMotion,
         },
         { onReady: () => send({ type: "ready" }), onFallback: () => send({ type: "fallback" }) }
       );
-      break;
-    case "progress":
-      sky?.setProgress(command.value);
       break;
     case "moon":
       sky?.setMoon(command.motion);
