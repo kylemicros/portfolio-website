@@ -256,6 +256,21 @@ html[data-splash="run"] [data-splash-screen] {
   }
 }
 
+/* The slides' hint (SlideHint.tsx) floats slowly up and down. */
+@theme {
+  --animate-hint-float: hint-float 3.6s ease-in-out infinite;
+
+  @keyframes hint-float {
+    0%,
+    100% {
+      translate: 0 0;
+    }
+    50% {
+      translate: 0 -6px;
+    }
+  }
+}
+
 /* The page's shared width: content up to 1440px, centred, with side gutters that widen with the
    screen (24px, 32px from `sm`, 48px from `lg`, 64px from `2xl`). The gutter is a variable, so
    anything placed against the content's edge can use it. */

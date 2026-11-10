@@ -12,11 +12,9 @@ export type SkyCommand =
       canvas: OffscreenCanvas;
       width: number;
       height: number;
-      progress: number;
       motion: MoonMotion;
       reducedMotion: boolean;
     }
-  | { type: "progress"; value: number }
   | { type: "moon"; motion: MoonMotion }
   | { type: "reducedMotion"; value: boolean }
   | { type: "size"; width: number; height: number }
@@ -54,12 +52,9 @@ export function isSkyCommand(value: unknown): value is SkyCommand {
         value.canvas instanceof OffscreenCanvas &&
         isNumber(value.width) &&
         isNumber(value.height) &&
-        isNumber(value.progress) &&
         isMoonMotion(value.motion) &&
         typeof value.reducedMotion === "boolean"
       );
-    case "progress":
-      return isNumber(value.value);
     case "moon":
       return isMoonMotion(value.motion);
     case "reducedMotion":

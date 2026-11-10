@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import type Lenis from "lenis";
 
 import { gsap, MOTION_OK, ScrollTrigger } from "@/lib/gsap";
+import { setSmoothScroll } from "@/lib/smooth-scroll";
 import { whenSplashEnds } from "@/lib/splash";
 
 // Only a mouse or trackpad gets the glide: touch screens keep their own scrolling.
@@ -15,8 +16,9 @@ const inDialog = (node: HTMLElement) => node.getAttribute("role") === "dialog";
 
 /**
  * Smooths wheel and trackpad scrolling with Lenis, driven by the GSAP ticker so ScrollTrigger
- * (the sky's clouds, the entrances) reads every frame of the glide. Everything else stays the
- * browser's own: touch, the keyboard, focus, the scrollbar and the jumps to a section (`#about`).
+ * (the entrances) reads every frame of the glide. Everything else stays the browser's own: touch,
+ * focus, the scrollbar and the jumps to a section (`#about`), and the keyboard, except on the
+ * scrollytelling stage, where the slides (`@/lib/slides`) take the keys that move between sections.
  * It only runs for a fine pointer with motion allowed, and starts once the page has loaded and any
  * opening splash has ended.
  * Renders nothing.
@@ -39,6 +41,7 @@ export function SmoothScroll() {
       const offScroll = lenis.on("scroll", ScrollTrigger.update);
       const tick = (time: number) => lenis.raf(time * 1000);
       gsap.ticker.add(tick);
+      setSmoothScroll(lenis);
 
       // A dialog or the menu sheet locks the page (`data-scroll-locked` on the body); the wheel
       // must not move the page behind it.
@@ -80,6 +83,7 @@ export function SmoothScroll() {
         window.removeEventListener("focusin", settle, { capture: true });
         window.removeEventListener("scroll", onScroll);
         lock.disconnect();
+        setSmoothScroll(null);
         gsap.ticker.remove(tick);
         offScroll();
         lenis.destroy();
