@@ -2,9 +2,12 @@
 
 import { useRef } from "react";
 
+import { SlideHint } from "@/components/motion/SlideHint";
 import type { NavbarLink } from "@/components/Navbar";
+import { watchCovering } from "@/lib/covering";
 import { endStageSection, showStageSection, watchSections } from "@/lib/current-section";
 import { gsap, prepareScrollTriggers, ScrollTrigger, STAGE, useGSAP } from "@/lib/gsap";
+import { type SlideStop, startSlides } from "@/lib/slides";
 import { SCRIPT_MARK } from "@/lib/splash";
 import { OFF_STAGE, setStageTurns } from "@/lib/stage";
 import { cn } from "@/lib/utils";
@@ -45,6 +48,10 @@ const STACK_STEP = 1.75;
 const STACK_MIN_STEP = 1.25;
 const STACK_ROOM = 2;
 
+// A section at most this many px taller than the screen counts, for the slides, as one that fits:
+// all it hides is some of its bottom padding, not worth a flick of its own.
+const SLIDE_SLACK = 48;
+
 // Milliseconds to wait after a move through the history for the router's own scroll, if any.
 const TRAVERSE_WAIT = 400;
 
@@ -69,8 +76,10 @@ const isFindKey = (event: KeyboardEvent): boolean =>
  * browser's find bar is opened from the keyboard, the sections not on stage stay searchable
  * (`hidden="until-found"`, at their own size), and a match brings its section on stage.
  * The rail on the right shows the place in the page in place of the scrollbar (hidden on the stage
- * by globals.css); a click on a tick goes to that section. Elsewhere (phones, touch, reduced
- * motion, a small window, no JavaScript) the page is as it always is.
+ * by globals.css); a click on a tick goes to that section. The wheel, the trackpad and the arrow
+ * keys move one section at a time (`startSlides` in `@/lib/slides`), and a hint at the bottom
+ * shows them. Elsewhere (phones, touch, reduced motion, a small window, no JavaScript) the page
+ * is as it always is.
  * Renders the rail; place it last in `<main>`, after the sections.
  */
 export function ScrollStage({ links }: Readonly<ScrollStageProps>) {
@@ -535,6 +544,21 @@ export function ScrollStage({ links }: Readonly<ScrollStageProps>) {
 
         const onLoad = () => requestAnimationFrame(() => landOnHash("instant"));
 
+        // Each section's stop for the slides: the first where the page starts; the others where
+        // they arrive in their place; a tall one's content through to its end, and the last
+        // section's on to the end of the page.
+        const slideStops = (): SlideStop[] =>
+          scenes.map((scene, i) => {
+            const first = Math.min(maxScroll, i === 0 ? 0 : scene.arrive);
+            const end = i === scenes.length - 1 ? maxScroll : scene.tall && scene.hold - first > SLIDE_SLACK ? scene.hold : first;
+            return {
+              start: scene.restStart,
+              end: Math.min(scene.restEnd, maxScroll),
+              first,
+              last: Math.max(first, Math.min(end, maxScroll)),
+            };
+          });
+
         window.addEventListener("click", onClick, { capture: true });
         root.addEventListener("click", onRailClick);
         window.addEventListener("popstate", onPopState);
@@ -566,8 +590,14 @@ export function ScrollStage({ links }: Readonly<ScrollStageProps>) {
         // is in the page, which may not be its turn on stage.
         if (document.readyState === "complete") onLoad();
         else window.addEventListener("load", onLoad, { once: true });
+        const stopSlides = startSlides({ stops: slideStops });
+        // The hint steps aside while a link or button of the page is under it.
+        const hint = root.querySelector<HTMLElement>("[data-slide-hint]");
+        const stopHintCovering = hint ? watchCovering(hint) : () => {};
 
         return () => {
+          stopSlides();
+          stopHintCovering();
           ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
           ScrollTrigger.removeEventListener("refresh", onRefresh);
           window.removeEventListener("click", onClick, { capture: true });
@@ -649,6 +679,7 @@ export function ScrollStage({ links }: Readonly<ScrollStageProps>) {
           ))}
         </div>
       </div>
+      <SlideHint />
     </div>
   );
 }
